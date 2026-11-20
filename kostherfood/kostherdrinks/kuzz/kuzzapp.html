@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0C5C38">
-<meta name="description" content="Kuzzapp — SOP App interactiva para preparar la bebida oficial Hierba Luisa, Maracuyá & Menta">
-<title>kuzzapp</title>
+<meta name="description" content="Kuzzapp — SOP App interactiva para preparar la bebida oficial Hierba Luisa, Maracuyá, Canela, Clavo & Menta">
+<title>Kuzzapp — Hierba Luisa, Maracuyá, Canela, Clavo & Menta</title>
 
 <!-- Favicon / Apple touch icon -->
 <link rel="icon" type="image/png" href="brand/favicon.png">
@@ -107,6 +107,17 @@
   }
 
   .toggle-switch { transition: all .3s ease; }
+
+  /* Heating pill: solo visible en desktop cuando active */
+  #heatingPill { display: none !important; }
+  @media (min-width: 768px) {
+    #heatingPill.active { display: flex !important; }
+  }
+  /* Heating pill mobile: solo visible en mobile cuando active */
+  #heatingPillMobile { display: none !important; }
+  @media (max-width: 767px) {
+    #heatingPillMobile.active { display: block !important; }
+  }
 </style>
 </head>
 
@@ -114,16 +125,12 @@
 
 <!-- ============================== HEADER ============================== -->
 <header class="sticky top-0 z-40 bg-kuzz-green dark:bg-kuzz-black border-b-4 border-kuzz-orange shadow-lg">
-  <div class="max-w-5xl mx-auto px-3 sm:px-5 py-3 flex items-center justify-between gap-2 flex-wrap">
-    <!-- Logo + Wake indicator -->
+  <div class="max-w-5xl mx-auto px-3 sm:px-5 py-2 sm:py-3 flex items-center justify-between gap-2 flex-wrap">
+    <!-- Logo + Kane badge -->
     <div class="flex items-center gap-2 min-w-0">
-      <img src="brand/logo-claro.png" alt="Kuzzapp" class="h-10 w-auto object-contain">
-      <div id="wakeIndicator" class="hidden items-center gap-1 bg-white/15 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
-        <i data-lucide="lightbulb" class="w-3 h-3"></i>
-        <span>Pantalla activa</span>
-      </div>
+      <img src="brand/logo-claro.png" alt="Kuzzapp" class="h-12 sm:h-14 w-auto">
       <!-- MODO KANE badge -->
-      <div id="kaneBadge" class="hidden items-center gap-1 bg-kuzz-orange text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full pulse-orange">
+      <div id="kaneBadge" class="hidden items-center gap-1 bg-kuzz-orange text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full pulse-orange cursor-pointer">
         <i data-lucide="key-round" class="w-3 h-3"></i>
         <span>Modo Kane · Matriz</span>
       </div>
@@ -131,34 +138,28 @@
 
     <!-- Right cluster -->
     <div class="flex items-center gap-2 flex-wrap">
-      <!-- Heating chronometer pill (visible during steps) - desktop -->
-      <div id="heatingPill" class="hidden items-center gap-2 bg-kuzz-black/30 dark:bg-white/10 text-white px-3 py-2 rounded-full text-sm font-semibold">
+      <!-- Heating chronometer pill (visible during steps) - desktop only via CSS -->
+      <div id="heatingPill" class="items-center gap-2 bg-kuzz-black/30 dark:bg-white/10 text-white px-3 py-2 rounded-full text-sm font-semibold">
         <i data-lucide="thermometer" class="w-4 h-4"></i>
         <span class="timer-digit" id="heatingDisplay">00:00</span>
       </div>
 
-      <!-- Theme toggle -->
-      <button id="themeBtn" class="w-10 h-10 grid place-items-center rounded-full bg-white/15 hover:bg-white/25 text-white transition" title="Cambiar tema (Día/Noche)">
-        <i data-lucide="sun-moon" class="w-5 h-5"></i>
+      <!-- Recetario button (Sucursal mode) -->
+      <button id="recipeBookBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Ver receta completa">
+        <i data-lucide="book-open" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Receta</span>
       </button>
 
-      <!-- Modo Kane switch -->
-      <button id="kaneToggleBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Activar Modo Kane (Recetario Maestro)">
+      <!-- Modo Kane switch (password protected) -->
+      <button id="kaneToggleBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Activar Modo Kane">
         <i data-lucide="key-round" class="w-4 h-4"></i>
         <span class="hidden sm:inline">Modo Kane</span>
       </button>
 
-      <!-- Install App (always visible) -->
-      <button id="installBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-full transition">
-        <i data-lucide="download" class="w-4 h-4"></i>
-        <span>Instalar</span>
+      <!-- Install App (icon only) -->
+      <button id="installBtn" class="w-10 h-10 grid place-items-center rounded-full bg-white/15 hover:bg-white/25 text-white transition" title="Instalar App">
+        <i data-lucide="download" class="w-5 h-5"></i>
       </button>
-
-      <!-- Web oficial -->
-      <a href="https://kostheronline.github.io/kostherfood/kostherdrinks/kuzz" target="_blank" rel="noopener" class="hidden sm:flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-full transition" title="Web oficial de Kuzz">
-        <i data-lucide="globe" class="w-4 h-4"></i>
-        <span>Web</span>
-      </a>
 
       <!-- ¡El agua ya hirvió! -->
       <button id="hornillaBtn" class="hidden items-center gap-2 bg-kuzz-orange hover:bg-kuzz-orange-light text-white text-sm sm:text-base font-extrabold px-3 sm:px-5 py-2.5 rounded-full transition pulse-orange shadow-md">
@@ -168,8 +169,8 @@
     </div>
   </div>
 
-  <!-- Mobile heating pill -->
-  <div id="heatingPillMobile" class="hidden px-3 pb-2">
+  <!-- Mobile heating pill (mobile only via CSS) -->
+  <div id="heatingPillMobile" class="px-3 pb-2">
     <div class="flex items-center justify-center gap-2 bg-black/30 text-white px-3 py-1.5 rounded-full text-xs font-semibold w-max mx-auto">
       <i data-lucide="thermometer" class="w-3.5 h-3.5"></i>
       <span class="timer-digit" id="heatingDisplayMobile">00:00</span>
@@ -200,18 +201,25 @@
       <div class="absolute -right-12 -top-12 w-48 h-48 bg-kuzz-orange/20 rounded-full"></div>
       <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full"></div>
 
-      <div class="relative">
-        <div class="flex items-center gap-2 text-kuzz-orange-light text-xs font-bold uppercase tracking-[0.2em] mb-3">
-          <i data-lucide="leaf" class="w-4 h-4"></i>
-          <span>Kuzzapp · Bebida oficial · SOP App</span>
-        </div>
-        <h1 class="text-3xl sm:text-5xl font-black leading-tight">Hierba Luisa,<br>Maracuyá &amp; Menta</h1>
-        <p class="mt-3 text-white/80 text-sm sm:text-base max-w-xl">Aplicación operativa interactiva para producción gastronómica. Selecciona el volumen de producción y sigue el flujo guiado paso a paso.</p>
+      <div class="relative flex flex-col sm:flex-row gap-6 items-start">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 text-kuzz-orange-light text-xs font-bold uppercase tracking-[0.2em] mb-3">
+            <i data-lucide="leaf" class="w-4 h-4"></i>
+            <span>Kuzzapp · Bebida oficial · SOP App</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-black leading-tight">Hierba Luisa,<br>Maracuyá, Canela,<br>Clavo &amp; Menta</h1>
+          <p class="mt-3 text-white/80 text-sm sm:text-base max-w-xl">Aplicación operativa interactiva para producción gastronómica. Selecciona el volumen de producción y sigue el flujo guiado paso a paso.</p>
 
-        <!-- Volume selector -->
-        <div class="mt-6">
-          <div class="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Volumen de producción</div>
-          <div id="volumeSelector" class="grid grid-cols-4 gap-2 sm:gap-3"></div>
+          <!-- Volume selector -->
+          <div class="mt-6">
+            <div class="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Volumen de producción</div>
+            <div id="volumeSelector" class="grid grid-cols-4 gap-2 sm:gap-3"></div>
+          </div>
+        </div>
+
+        <!-- Hierba luisa photo -->
+        <div class="shrink-0 hidden sm:block">
+          <img src="brand/2.jpg" alt="Hierba Luisa" class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded-2xl border-4 border-white/20 shadow-xl">
         </div>
       </div>
     </div>
@@ -238,6 +246,7 @@
         </button>
       </div>
       <div id="shoppingList" class="space-y-2"></div>
+      <div id="shoppingRoiPanel" class="mt-4"></div>
       <button id="clearShoppingBtn" class="mt-3 text-xs text-kuzz-black/50 dark:text-kuzz-cream/50 hover:text-kuzz-orange underline">Desmarcar todo</button>
     </div>
 
@@ -302,16 +311,13 @@
           <span>Lote completado</span>
         </div>
         <h2 class="text-3xl sm:text-4xl font-black">¡Lote listo!</h2>
-        <p class="mt-2 text-white/80 text-sm">La bebida oficial Hierba Luisa, Maracuyá &amp; Menta está envasada y lista para refrigeración.</p>
+        <p class="mt-2 text-white/80 text-sm">La bebida oficial Hierba Luisa, Maracuyá, Canela, Clavo &amp; Menta está envasada y lista para refrigeración.</p>
       </div>
     </div>
 
     <div id="loteCard" class="bg-kuzz-card dark:bg-kuzz-card-dark rounded-2xl p-5 sm:p-6 border border-kuzz-border dark:border-kuzz-border-dark shadow-sm space-y-4"></div>
 
-    <!-- Web oficial button -->
-    <a href="https://kostheronline.github.io/kostherfood/kostherdrinks/kuzz" target="_blank" rel="noopener" class="block w-full bg-kuzz-card dark:bg-kuzz-card-dark border-2 border-kuzz-orange text-kuzz-orange font-extrabold py-4 rounded-2xl transition flex items-center justify-center gap-2 hover:bg-kuzz-orange/5">
-      <i data-lucide="globe" class="w-5 h-5"></i> Visita la web oficial de Kuzz
-    </a>
+    <!-- Web oficial link removed from lote screen (only in footer) -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <button id="newBatchBtn" class="bg-kuzz-green hover:bg-kuzz-green-light text-white font-extrabold py-4 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
@@ -335,7 +341,7 @@
     <img src="brand/logo-oscuro.png" alt="Kuzzapp" class="h-6 w-auto object-contain inline-block dark:hidden">
     <img src="brand/logo-claro.png" alt="Kuzzapp" class="h-6 w-auto object-contain hidden dark:inline-block">
   </div>
-  <p class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60 mb-2">SOP App para producción gastronómica · Hierba Luisa, Maracuyá &amp; Menta</p>
+  <p class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60 mb-2">SOP App para producción gastronómica · Hierba Luisa, Maracuyá, Canela, Clavo &amp; Menta</p>
   <a href="https://kostheronline.github.io/kostherfood/kostherdrinks/kuzz" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-bold text-kuzz-orange hover:underline">
     <i data-lucide="globe" class="w-3.5 h-3.5"></i> Web oficial de Kuzz
   </a>
@@ -409,14 +415,14 @@
         <div class="alarm-flash text-white rounded-xl p-4 text-center">
           <i data-lucide="alert-triangle" class="w-8 h-8 mx-auto mb-2 blink"></i>
           <div class="text-base sm:text-lg font-black leading-tight">¡APAGA LA HORNILLA AHORA!</div>
-          <div class="text-sm mt-1 opacity-95">Echa la hierba luisa troceada en el agua hervida y tapa la olla herméticamente.</div>
+          <div class="text-sm mt-1 opacity-95">Echa la hierba luisa troceada, la canela y el clavo en el agua hervida y tapa la olla herméticamente.</div>
         </div>
         <div class="bg-kuzz-cream dark:bg-kuzz-black/40 rounded-xl p-4 border border-kuzz-border dark:border-kuzz-border-dark text-sm">
           <b>Técnica correcta:</b> la hierba luisa <b>NO se hierve</b>. Se infusiona en el agua recién hervida con el fuego apagado para preservar el aceite esencial <i>citral</i> y evitar que amargue.
         </div>
         <label class="flex items-start gap-3 bg-kuzz-card dark:bg-kuzz-black/30 border-2 border-kuzz-border dark:border-kuzz-border-dark rounded-xl p-4 cursor-pointer hover:border-kuzz-green transition">
           <input type="checkbox" id="confirmHerbAdded" class="mt-1 w-5 h-5 accent-kuzz-green">
-          <span class="text-sm sm:text-base font-semibold">Ya apagué la hornilla, eché la hierba luisa y tapé la olla.</span>
+          <span class="text-sm sm:text-base font-semibold">Ya apagué la hornilla, eché la hierba luisa, la canela y el clavo, y tapé la olla.</span>
         </label>
         <button id="startInfusionBtn" disabled class="w-full bg-kuzz-green text-white font-extrabold py-4 rounded-2xl shadow-lg disabled:opacity-50 disabled:bg-kuzz-green/60 disabled:cursor-not-allowed enabled:hover:bg-kuzz-green-light transition flex items-center justify-center gap-2">
           <i data-lucide="timer" class="w-5 h-5"></i> Iniciar infusión sellada · 7:00 min
@@ -455,14 +461,14 @@
   <div class="alarm-flash w-full max-w-md rounded-3xl p-6 sm:p-8">
     <i data-lucide="alert-triangle" class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 blink"></i>
     <div class="text-3xl sm:text-5xl font-black leading-tight">¡INFUSIÓN<br>COMPLETADA!</div>
-    <div class="text-base sm:text-xl font-semibold mt-2 opacity-95">Retira la hierba luisa ahora</div>
+    <div class="text-base sm:text-xl font-semibold mt-2 opacity-95">Retira la hierba luisa, la canela y el clavo ahora</div>
   </div>
   <div class="mt-5 w-full max-w-md bg-white/15 rounded-xl p-4 text-left text-sm sm:text-base">
     <b>Esta pantalla no se puede cerrar</b> hasta que confirmes la acción obligatoria.
   </div>
   <label class="mt-4 w-full max-w-md flex items-start gap-3 bg-white text-kuzz-black border-2 border-white rounded-2xl p-4 cursor-pointer shadow-lg">
     <input type="checkbox" id="confirmHerbRemoved" class="mt-1 w-6 h-6 accent-kuzz-green">
-    <span class="text-sm sm:text-base font-bold">Ya retiré toda la hierba luisa de la olla con la espumadera.</span>
+    <span class="text-sm sm:text-base font-bold">Ya retiré toda la hierba luisa, la canela y el clavo de la olla con la espumadera.</span>
   </label>
   <button id="finishHornillaBtn" disabled class="mt-4 w-full max-w-md bg-white text-kuzz-green font-black text-lg sm:text-xl py-5 rounded-2xl shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed enabled:hover:bg-kuzz-cream transition flex items-center justify-center gap-2">
     <i data-lucide="check-check" class="w-6 h-6"></i> Confirmar y desbloquear
@@ -529,6 +535,45 @@
   </div>
 </div>
 
+<!-- ============================== MODAL: KANE PASSWORD ============================== -->
+<div id="kanePasswordModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+  <div class="bg-kuzz-card dark:bg-kuzz-card-dark rounded-3xl w-full max-w-sm shadow-2xl scale-in overflow-hidden">
+    <div class="bg-kuzz-green text-white p-5 rounded-t-3xl flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-white/15 grid place-items-center"><i data-lucide="key-round" class="w-5 h-5"></i></div>
+        <div>
+          <div class="text-xs uppercase tracking-widest opacity-70">Acceso restringido</div>
+          <div class="font-extrabold text-lg">Modo Kane · Matriz</div>
+        </div>
+      </div>
+      <button onclick="closeModal('kanePasswordModal')" class="w-9 h-9 grid place-items-center rounded-full hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 space-y-4 text-sm sm:text-base">
+      <p class="text-center text-kuzz-black/70 dark:text-kuzz-cream/70">Ingresa la contraseña de Matriz para activar el Modo Kane.</p>
+      <input type="password" id="kanePasswordInput" placeholder="Contraseña" class="w-full text-center text-lg font-bold tracking-widest bg-kuzz-cream dark:bg-kuzz-black/40 border-2 border-kuzz-border dark:border-kuzz-border-dark rounded-xl px-4 py-3 focus:outline-none focus:border-kuzz-green dark:focus:border-kuzz-orange transition">
+      <div id="kanePasswordError" class="hidden text-center text-sm font-bold text-red-500">Contraseña incorrecta</div>
+      <button id="kanePasswordConfirmBtn" class="w-full bg-kuzz-green hover:bg-kuzz-green-light text-white font-extrabold py-3 rounded-xl transition">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== MODAL: SUCURSAL RECIPE BOOK (Receta completa legible) ============================== -->
+<div id="sucursalRecipeModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+  <div class="bg-kuzz-card dark:bg-kuzz-card-dark rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl scale-in">
+    <div class="bg-kuzz-green text-white p-5 rounded-t-3xl flex items-center justify-between sticky top-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-white/15 grid place-items-center"><i data-lucide="book-open" class="w-5 h-5"></i></div>
+        <div>
+          <div class="text-xs uppercase tracking-widest opacity-70">Receta completa</div>
+          <div class="font-extrabold text-lg">Hierba Luisa, Maracuyá, Canela, Clavo & Menta</div>
+        </div>
+      </div>
+      <button onclick="closeModal('sucursalRecipeModal')" class="w-9 h-9 grid place-items-center rounded-full hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 space-y-4 text-sm sm:text-base" id="sucursalRecipeContent"></div>
+  </div>
+</div>
+
 <!-- ============================== TOAST ============================== -->
 <div id="toast" class="hidden fixed bottom-24 left-6 z-[70] bg-kuzz-black text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl max-w-[80vw]"></div>
 
@@ -555,6 +600,8 @@ const FORMULAS = {
     maracuyaCount: 1, maracuyaJuice: 75,
     kostherSpoons: '2.5', kostherSpoonsNum: 2.5, kostherGrams: 48,
     menta: 1,
+    canela: '1/3 de rama de canela entera',
+    clavo: '1 clavo de olor entero',
     evaporationNote: '60 ml extra para compensar evaporación'
   },
   2: {
@@ -565,6 +612,8 @@ const FORMULAS = {
     maracuyaCount: 2, maracuyaJuice: 150,
     kostherSpoons: '5.5', kostherSpoonsNum: 5.5, kostherGrams: 95,
     menta: 2,
+    canela: '2/3 de rama de canela entera',
+    clavo: '2 clavos de olor enteros',
     evaporationNote: '125 ml extra para compensar evaporación'
   },
   3: {
@@ -575,6 +624,8 @@ const FORMULAS = {
     maracuyaCount: 3, maracuyaJuice: 225,
     kostherSpoons: '8', kostherSpoonsNum: 8, kostherGrams: 142,
     menta: 3,
+    canela: '1 rama de canela entera',
+    clavo: '3 clavos de olor enteros',
     evaporationNote: '190 ml extra para compensar evaporación'
   },
   4: {
@@ -585,41 +636,39 @@ const FORMULAS = {
     maracuyaCount: 4, maracuyaJuice: 300,
     kostherSpoons: '10.5', kostherSpoonsNum: 10.5, kostherGrams: 190,
     menta: 4,
+    canela: '1.5 ramas de canela entera',
+    clavo: '4 clavos de olor enteros',
     evaporationNote: '250 ml extra para evaporación y absorción de hojas'
   }
 };
 
-/* ---------- Lista de Compras ---------- */
-const SHOPPING_LISTS = {
-  1: [
-    { id: 'hl', icon: 'leaf', label: '1/4 atado de hierba luisa fresca', sub: '~30 g' },
-    { id: 'mp', icon: 'citrus', label: '1 maracuyá maduro', sub: '~75 ml zumo' },
-    { id: 'mn', icon: 'sprout', label: '1 cogollo de menta fresca', sub: 'para 1 botella' },
-    { id: 'ek', icon: 'flask-conical', label: '48 g de Endulzante Kuzz', sub: 'o 1 kg azúcar rubia + 12 g sal marina si no tiene frasco maestro' },
-    { id: 'bt', icon: 'wine', label: '1 botella PET de 1L', sub: 'con tapa precinto' },
-  ],
-  2: [
-    { id: 'hl', icon: 'leaf', label: '1/2 atado de hierba luisa fresca', sub: '~60 g' },
-    { id: 'mp', icon: 'citrus', label: '2 maracuyás maduros', sub: '~150 ml zumo' },
-    { id: 'mn', icon: 'sprout', label: '2 cogollos de menta fresca', sub: '1 por botella' },
-    { id: 'ek', icon: 'flask-conical', label: '95 g de Endulzante Kuzz', sub: 'o 1 kg azúcar rubia + 12 g sal marina si no tiene frasco maestro' },
-    { id: 'bt', icon: 'wine', label: '2 botellas PET de 1L', sub: 'con tapa precinto' },
-  ],
-  3: [
-    { id: 'hl', icon: 'leaf', label: '3/4 atado de hierba luisa fresca', sub: '~85 g' },
-    { id: 'mp', icon: 'citrus', label: '3 maracuyás maduros', sub: '~225 ml zumo' },
-    { id: 'mn', icon: 'sprout', label: '3 cogollos de menta fresca', sub: '1 por botella' },
-    { id: 'ek', icon: 'flask-conical', label: '142 g de Endulzante Kuzz', sub: 'o 1 kg azúcar rubia + 12 g sal marina si no tiene frasco maestro' },
-    { id: 'bt', icon: 'wine', label: '3 botellas PET de 1L', sub: 'con tapa precinto' },
-  ],
-  4: [
-    { id: 'hl', icon: 'leaf', label: '1 atado entero de hierba luisa de S/ 2.00', sub: '~110–120 g' },
-    { id: 'mp', icon: 'citrus', label: '4 maracuyás maduros', sub: '~300 ml zumo' },
-    { id: 'mn', icon: 'sprout', label: '4 cogollos de menta fresca', sub: '1 por botella' },
-    { id: 'ek', icon: 'flask-conical', label: '190 g de Endulzante Kuzz', sub: 'o 1 kg azúcar rubia + 12 g sal marina si no tiene frasco maestro' },
-    { id: 'bt', icon: 'wine', label: '4 botellas PET de 1L', sub: 'con tapa precinto' },
-  ]
+/* ---------- Lista de Compras (dinámica por volumen y modo) ---------- */
+const SAL_GRAMS = { 1: '0.6', 2: '1.2', 3: '1.8', 4: '2.4' };
+
+const HL_LABELS = {
+  1: { label: '1/4 atado de hierba luisa fresca', sub: '~30 g' },
+  2: { label: '1/2 atado de hierba luisa fresca', sub: '~60 g' },
+  3: { label: '3/4 atado de hierba luisa fresca', sub: '~85 g' },
+  4: { label: '1 atado entero de hierba luisa de S/ 2.00', sub: '~110–120 g' },
 };
+
+function getShoppingItems(volume, mode) {
+  const F = FORMULAS[volume];
+  const items = [];
+  items.push({ id: 'hl', icon: 'leaf', ...HL_LABELS[volume] });
+  items.push({ id: 'cn', icon: 'sparkles', label: F.canela, sub: 'canela entera en rama para el hervor' });
+  items.push({ id: 'cv', icon: 'sparkles', label: F.clavo, sub: 'clavo de olor entero para el hervor' });
+  items.push({ id: 'mp', icon: 'citrus', label: `${F.maracuyaCount} maracuyá${F.maracuyaCount > 1 ? 's' : ''} maduro${F.maracuyaCount > 1 ? 's' : ''}`, sub: `~${F.maracuyaJuice} ml zumo` });
+  items.push({ id: 'mn', icon: 'sprout', label: `${F.menta} cogollo${F.menta > 1 ? 's' : ''} de menta fresca`, sub: '1 por botella' });
+  if (mode === 'kane') {
+    items.push({ id: 'az', icon: 'flask-conical', label: `${F.kostherGrams} g de azúcar rubia`, sub: 'o compra base de 1,000 g para frasco maestro' });
+    items.push({ id: 'sl', icon: 'flask-conical', label: `${SAL_GRAMS[volume]} g de sal marina fina`, sub: 'proporción maestra: 12 g por cada 1,000 g de azúcar' });
+  } else {
+    items.push({ id: 'ek', icon: 'flask-conical', label: `${F.kostherGrams} g de Endulzante Kuzz`, sub: 'o 1 kg azúcar rubia + 12 g sal marina si no tiene frasco maestro' });
+  }
+  items.push({ id: 'bt', icon: 'wine', label: `${F.bottles} botella${F.bottles > 1 ? 's' : ''} PET de 1L`, sub: 'con tapa precinto' });
+  return items;
+}
 
 const UTENSILS = [
   { icon: 'cooking-pot', label: 'Olla de 4 L con tapa' },
@@ -634,7 +683,7 @@ const UTENSILS = [
 const MASTER_RECIPES = [
   {
     n: 1,
-    title: 'Hierba Luisa, Maracuyá & Menta',
+    title: 'Hierba Luisa, Maracuyá, Canela, Clavo & Menta',
     subtitle: 'Fórmula Matriz desde cero',
     icon: 'leaf',
     color: 'green',
@@ -642,12 +691,15 @@ const MASTER_RECIPES = [
       { heading: 'Cantidades por litro', items: [
         'Hierba luisa fresca: 28–30 g (5 a 6 ramas medianas)',
         'Agua purificada: 1,060 ml (incluye 60 ml extra por evaporación)',
+        'Canela entera en rama: 1/3 de rama por litro',
+        'Clavo de olor entero: 1 clavo por litro',
         'Maracuyá maduro: 1 unidad (~75 ml de zumo colado)',
         'Endulzante Kuzz: 48 g',
         'Menta fresca: 1 cogollo por botella',
       ]},
-      { heading: 'Técnica correcta (NO hervir la hierba)', body: 'El agua se hierve sola en olla tapada a fuego alto. Una vez que rompe el hervor, se APAGA el fuego y se añade la hierba luisa troceada. Se tapa herméticamente y se deja infusionar 7 minutos con el fuego apagado.' },
-      { heading: 'Por qué NO se hierve la hierba luisa', body: 'El aceite esencial <b>citral</b> (responsable del aroma cítrico) es volátil y se degrada con calor sostenido superior a 80°C. Hervir la hierba luisa destruye el citral y libera compuestos taninos amargos. La infusión sellada en agua recién hervida (fuego apagado, ~90°C descendente) preserva el citral y extrae solo los aromas dulces.' },
+      { heading: 'Técnica correcta (NO hervir la hierba luisa)', body: 'El agua se hierve <b>junto con la canela en rama y los clavos de olor</b> en olla tapada a fuego alto. Una vez que rompe el hervor, se APAGA el fuego y se añade la hierba luisa troceada. Se tapa herméticamente y se deja infusionar 7 minutos con el fuego apagado. La canela y el clavo se retiran junto con la hierba luisa al finalizar la infusión.' },
+      { heading: 'Por qué canela y clavo juntos en el hervor (análisis organoléptico)', body: 'La <b>canela</b> aporta <b>cinamaldehído</b> (notas cálidas, dulces, amaderadas) y el <b>clavo de olor</b> aporta <b>eugenol</b> (notas picantes, profundas, ligeramente anestésicas). Ambos compuestos son termoestables y se extraen de forma óptima a 100°C, por eso se añaden desde el inicio del hervor del agua. La combinación es sinérgica: la canela proporciona el cuerpo aromático principal y el clavo añade profundidad y complejidad. <b>El clavo debe usarse en cantidades pequeñas</b> (1 clavo por litro) porque su potencia organoléptica es ~10 veces mayor que la canela; en exceso amarga y anestesia el paladar. La proporción canela:clavo de 1/3 rama : 1 clavo por litro es el equilibrio óptimo donde ambos se perciben sin que ninguno domine.' },
+      { heading: 'Por qué NO se hierve la hierba luisa', body: 'El aceite esencial <b>citral</b> (responsable del aroma cítrico) es volátil y se degrada con calor sostenido superior a 80°C. Hervir la hierba luisa destruye el citral y libera compuestos taninos amargos. La infusión sellada en agua recién hervida (fuego apagado, ~90°C descendente) preserva el citral y extrae solo los aromas dulces. La canela y el clavo ya habrán liberado sus aromáticos durante el hervor previo.' },
       { heading: 'Por qué el maracuyá se añade en frío', body: 'El zumo de maracuyá contiene compuestos fenólicos y vitamina C que se oxidan con el calor, generando notas amargas y pérdida de acidez fresca. Al integrarlo cuando la infusión ya está fría, se conserva el perfil aromático tropical y el color brillante del zumo.' },
       { heading: 'Por qué se palmea la menta', body: 'La palmada firme rompe las glándulas tricomas de la hoja liberando <b>mentol</b> cristalizado, que activa los receptores <b>TRPM8</b> (cold-sensitive receptors) de la lengua y mucosa oral. Esto genera la sensación de frescor sin necesidad de masticar la hoja entera, evitando que el mentol se libere todo de golpe al morder.' },
     ]
@@ -677,119 +729,6 @@ const MASTER_RECIPES = [
       { heading: 'Función química', body: 'La sal marina realza la percepción del dulzor por inhibición de los receptores amargos en la lengua (TAS2R), permitiendo reducir el azúcar total sin perder intensidad sensorial. En infusión caliente se disuelve sin cristalizar y aporta una redondez que evita el perfil empalagoso. La proporción 1000:12 (~1.2%) es el umbral óptimo donde la sal no se percibe como salada pero sí bloquea el amargor.' },
     ]
   },
-  {
-    n: 3,
-    title: 'Kit Herbal Kuzz #01',
-    subtitle: 'Insumo Matriz para Sucursales',
-    icon: 'package',
-    color: 'green',
-    sections: [
-      { heading: 'Selección de hierba luisa', items: [
-        'Elegir atados frescos de S/ 2.00 con hojas sanas, verdes y sin manchas.',
-        'Descartar bases leñosas duras y hojas amarillas.',
-        'Priorizar ramas medianas (15–20 cm) con alta concentración de citral.',
-      ]},
-      { heading: 'Limpieza', items: [
-        'Lavar hoja por hoja bajo chorro de agua para quitar tierra.',
-        'Secar con papel absorbente o centrifugadora de vegetales.',
-      ]},
-      { heading: 'Deshidratación / Porcionado', items: [
-        'Porcionar 28–30 g de hierba luisa fresca por litro de bebida a producir.',
-        'Para versión deshidratada: secar a 40°C por 12 horas en horno con puerta entreabierta hasta 0% humedad.',
-        'Envasar al vacío o en bolsas selladas con desecante de sílice.',
-      ]},
-      { heading: 'Empaque para sucursales', body: 'Cada <b>Bolsa Kit Herbal Kuzz #01</b> contiene la dosis estándar por litraje (1L, 2L, 3L o 4L) lista para infusionar. La sucursal solo debe abrir la bolsa, echar el contenido en el agua recién hervida y tapar.' },
-    ]
-  },
-  {
-    n: 4,
-    title: 'Kuzz Concentrado',
-    subtitle: 'Botella 250 ml · rinde 2L normal o 1L intenso',
-    icon: 'flask-round',
-    color: 'orange',
-    sections: [
-      { heading: 'Fórmula completa (250 ml)', items: [
-        'Extracto de hierba luisa: 60 g en 350 ml de agua',
-        'Endulzante Kuzz: 95 g',
-        'Ácido cítrico: 1.5 g',
-        'Zumo de maracuyá: 90 ml',
-        'Hojas de menta fresca: 6 unidades (maceración)',
-      ]},
-      { heading: 'Procedimiento paso a paso', items: [
-        '1. Hervir 350 ml de agua purificada. Apagar el fuego.',
-        '2. Añadir 60 g de hierba luisa fresca troceada. Tapar y infusionar 7 minutos.',
-        '3. Colar la infusión caliente. Descartar la hierba.',
-        '4. Disolver 95 g de Endulzante Kuzz y 1.5 g de ácido cítrico en la infusión caliente.',
-        '5. Dejar enfriar a temperatura ambiente.',
-        '6. Añadir 90 ml de zumo de maracuyá colado en frío.',
-        '7. Macerar 6 hojas de menta fresca palmadas dentro del concentrado por 30 minutos.',
-        '8. Retirar las hojas de menta. Envasar en botella de 250 ml esterilizada.',
-        '9. Refrigerar. Vida útil: 7 días refrigerado.',
-      ]},
-      { heading: 'Dilución', items: [
-        '2L normal: 1 tapa (250 ml) + 1.75 L de agua fría + zumo de maracuyá fresco opcional.',
-        '1L intenso: 1 tapa (250 ml) + 750 ml de agua fría.',
-      ]},
-    ]
-  },
-  {
-    n: 5,
-    title: 'Kuzz Polvo Instantáneo',
-    subtitle: 'Sobre de 105 g · rinde 2L normal o 1L intenso',
-    icon: 'sparkles',
-    color: 'green',
-    sections: [
-      { heading: 'Fórmula para molinillo eléctrico (105 g)', items: [
-        'Hoja de hierba luisa deshidratada (0% humedad): 6 g',
-        'Hoja de menta seca: 1.5 g',
-        'Endulzante Kuzz: 95 g',
-        'Ácido cítrico anhidro pulverizado: 2.5 g',
-      ]},
-      { heading: 'Procedimiento paso a paso', items: [
-        '1. Verificar que la hierba luisa y la menta estén 100% secas (0% humedad).',
-        '2. Moler la hierba luisa deshidratada en molinillo eléctrico por 30 segundos.',
-        '3. Añadir la menta seca y moler 15 segundos más.',
-        '4. Tamizar el polvo vegetal con malla fina.',
-        '5. Mezclar el polvo vegetal con 95 g de Endulzante Kuzz y 2.5 g de ácido cítrico anhidro.',
-        '6. Agitar en frasco hermético por 30 segundos hasta homogeneizar.',
-        '7. Envasar en sobre sellado aluminizado con desecante.',
-        '8. Vida útil: 90 días en lugar seco y oscuro.',
-      ]},
-      { heading: 'Preparación', items: [
-        '2L normal: 1 sobre (105 g) disuelto en 2 L de agua tibia (60°C). Revolver 30 segundos.',
-        '1L intenso: 1 sobre (105 g) disuelto en 1 L de agua tibia (60°C). Revolver 30 segundos.',
-      ]},
-    ]
-  },
-  {
-    n: 6,
-    title: 'Kuzz Hebras',
-    subtitle: 'Infusión Caliente Pura · 2.5 g por taza',
-    icon: 'coffee',
-    color: 'orange',
-    sections: [
-      { heading: 'Composición por taza (2.5 g)', items: [
-        'Hebras de hierba luisa seca: 1.7 g',
-        'Cáscara/pulpa de maracuyá deshidratada: 0.5 g',
-        'Hoja de menta seca triturada: 0.3 g',
-      ]},
-      { heading: 'Procedimiento', items: [
-        '1. Deshidratar la hierba luisa fresca a 40°C por 12 horas hasta 0% humedad.',
-        '2. Deshidratar la cáscara y pulpa de maracuyá a 50°C por 8 horas.',
-        '3. Deshidratar las hojas de menta a 35°C por 6 horas.',
-        '4. Picar/tamizar cada ingrediente por separado.',
-        '5. Mezclar en proporción 1.7 : 0.5 : 0.3 (hierba luisa : maracuyá : menta).',
-        '6. Envasar 2.5 g por sachet de filtro piramidal.',
-        '7. Sellado hermético. Vida útil: 12 meses.',
-      ]},
-      { heading: 'Preparación de la taza', items: [
-        'Calentar 200 ml de agua a 90°C (no hirviendo).',
-        'Sumergir el sachet de 2.5 g.',
-        'Infusionar 4 minutos. Retirar el sachet.',
-      ]},
-      { heading: 'Nota técnica', body: 'Al no hervir la hierba luisa seca (90°C descendente), se preserva el citral. La cáscara deshidratada de maracuyá aporta notas tropicales sin oxidación (al estar deshidratada, no hay agua para reacción enzimática). La menta seca aporta mentol residual sin dominar el perfil.' },
-    ]
-  },
 ];
 
 /* ---------- Pasos ---------- */
@@ -799,10 +738,10 @@ function buildSteps(F, kane) {
       n: 1, phase: 'mesa',
       title: 'Poner el agua a hervir',
       icon: 'droplets',
-      body: `Lleva los <b>${F.water.toLocaleString('es-PE')} ml</b> (${F.waterL} L) de agua purificada a hervor en la olla <b>con la tapa puesta</b>, a fuego alto.`,
+      body: `Lleva los <b>${F.water.toLocaleString('es-PE')} ml</b> (${F.waterL} L) de agua purificada a hervor <b>junto con ${F.canela} y ${F.clavo}</b> en la olla <b>con la tapa puesta</b>, a fuego alto.`,
       hint: 'El cronómetro de calentamiento arranca automáticamente al avanzar al Paso 2.',
-      tag: `${F.water.toLocaleString('es-PE')} ml`,
-      kaneNote: 'El agua debe romper el hervor ANTES de añadir la hierba luisa. La temperatura alta inicial mata microorganismos y prepara el medio de extracción. El cronómetro mide el tiempo total desde que el agua está sobre el fuego.'
+      tag: `${F.water.toLocaleString('es-PE')} ml + canela + clavo`,
+      kaneNote: 'El agua debe romper el hervor ANTES de añadir la hierba luisa. La canela en rama y los clavos de olor se añaden desde el inicio del hervor porque sus compuestos aromáticos (<b>cinamaldehído</b> y <b>eugenol</b>) son termoestables y se extraen de forma óptima a 100°C. El cronómetro mide el tiempo total desde que el agua está sobre el fuego.'
     },
     {
       n: 2, phase: 'mesa',
@@ -937,9 +876,9 @@ let state = {
   heatingStart: null,
   heatingFrozen: null,
   shoppingChecks: {},
+  shoppingPrices: {},
   history: [],
   theme: 'light',
-  themeMode: 'auto',
 };
 
 let timers = { infusion: null, heating: null };
@@ -1013,8 +952,8 @@ async function saveState() {
       heatingStart: state.heatingStart,
       heatingFrozen: state.heatingFrozen,
       shoppingChecks: state.shoppingChecks,
-      theme: state.theme,
-      themeMode: state.themeMode
+      shoppingPrices: state.shoppingPrices,
+      theme: state.theme
     });
     await store.setItem('kuzzapp_history', state.history);
   } catch (e) { console.warn('saveState fail', e); }
@@ -1032,15 +971,15 @@ async function loadState() {
       state.heatingStart = s.heatingStart || null;
       state.heatingFrozen = s.heatingFrozen || null;
       state.shoppingChecks = s.shoppingChecks || {};
+      state.shoppingPrices = s.shoppingPrices || {};
       state.theme = s.theme || 'light';
-      state.themeMode = s.themeMode || 'auto';
     }
     const h = await store.getItem('kuzzapp_history');
     if (Array.isArray(h)) state.history = h;
   } catch (e) { console.warn('loadState fail', e); }
 }
 
-/* ---------- Tema (auto por horario + override manual) ---------- */
+/* ---------- Tema (auto por horario, sin override manual) ---------- */
 function autoThemeByHour() {
   const h = new Date().getHours();
   // >= 17:00 (5pm) o < 06:00 (6am) => dark
@@ -1059,24 +998,7 @@ function applyTheme() {
 }
 
 function evaluateTheme() {
-  if (state.themeMode === 'auto') {
-    state.theme = autoThemeByHour();
-    applyTheme();
-    saveState();
-  }
-}
-
-function toggleTheme() {
-  // Toggle manual: si está en auto, pasa a manual con el opuesto
-  // Si está en manual, alterna entre light/dark
-  if (state.themeMode === 'auto') {
-    state.themeMode = 'manual';
-    state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    toast('Modo manual · tema ' + (state.theme === 'dark' ? 'Noche' : 'Día'));
-  } else {
-    state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    toast('Tema: ' + (state.theme === 'dark' ? 'Noche' : 'Día'));
-  }
+  state.theme = autoThemeByHour();
   applyTheme();
   saveState();
 }
@@ -1086,18 +1008,9 @@ function startThemeAutoCheck() {
   themeInterval = setInterval(evaluateTheme, 60000); // cada 60s
 }
 
-/* ---------- Wake Lock ---------- */
+/* ---------- Wake Lock (sin indicador visible) ---------- */
 async function requestWakeLock() {
-  if (!('wakeLock' in navigator)) {
-    // API no soportada - ocultar indicador
-    $('wakeIndicator').classList.add('hidden');
-    $('wakeIndicator').classList.remove('flex');
-    return;
-  }
-  // Mostrar indicador siempre que la API sea soportada
-  $('wakeIndicator').classList.remove('hidden');
-  $('wakeIndicator').classList.add('flex');
-  refreshIcons();
+  if (!('wakeLock' in navigator)) return;
   try {
     if (wakeLock && wakeLock.released !== undefined && !wakeLock.released) {
       // ya activo
@@ -1105,14 +1018,12 @@ async function requestWakeLock() {
       wakeLock = await navigator.wakeLock.request('screen');
       if (wakeLock) {
         wakeLock.addEventListener('release', () => {
-          // Re-intentar adquirir tras liberación
           requestWakeLock();
         });
       }
     }
   } catch (e) {
-    // permiso denegado o contexto no válido - mantener indicador visible
-    // (el navegador puede permitirlo tras interacción del usuario)
+    // permiso denegado o contexto no válido
   }
 }
 
@@ -1149,33 +1060,56 @@ function showScreen(name) {
   $('hornillaBtn').classList.toggle('flex', showHornilla);
 
   const showHeating = (name === 'steps') && (state.heatingStart !== null || state.heatingFrozen !== null);
-  $('heatingPill').classList.toggle('hidden', !showHeating);
-  $('heatingPill').classList.toggle('flex', showHeating);
-  $('heatingPillMobile').classList.toggle('hidden', !showHeating);
+  $('heatingPill').classList.toggle('active', showHeating);
+  $('heatingPillMobile').classList.toggle('active', showHeating);
 
   saveState();
 }
 
-/* ---------- Modo Kane ---------- */
+/* ---------- Modo Kane (con contraseña) ---------- */
 function toggleKaneMode() {
-  state.mode = state.mode === 'sucursal' ? 'kane' : 'sucursal';
-  if (state.mode === 'kane') {
+  if (state.mode === 'sucursal') {
+    // Pedir contraseña antes de activar
+    openModal('kanePasswordModal');
+    $('kanePasswordInput').value = '';
+    $('kanePasswordError').classList.add('hidden');
+    setTimeout(() => $('kanePasswordInput').focus(), 100);
+    return;
+  }
+  // Si ya está activo, desactivar directamente
+  state.mode = 'sucursal';
+  $('kaneBadge').classList.add('hidden');
+  $('kaneBadge').classList.remove('flex');
+  $('kaneToggleBtn').classList.remove('bg-kuzz-orange');
+  $('kaneToggleBtn').classList.add('bg-white/15');
+  toast('Modo Sucursal · operación estándar', 2000);
+  refreshIcons();
+  renderFormulaSummary();
+  renderShoppingList();
+  renderCurrentStep();
+  saveState();
+}
+
+function confirmKanePassword() {
+  const pwd = $('kanePasswordInput').value.trim();
+  if (pwd === '2040') {
+    state.mode = 'kane';
     $('kaneBadge').classList.remove('hidden');
     $('kaneBadge').classList.add('flex');
     $('kaneToggleBtn').classList.add('bg-kuzz-orange');
     $('kaneToggleBtn').classList.remove('bg-white/15');
+    closeModal('kanePasswordModal');
     toast('Modo Kane activado · Recetario Maestro desbloqueado', 2500);
+    refreshIcons();
+    renderFormulaSummary();
+    renderShoppingList();
+    renderCurrentStep();
+    saveState();
   } else {
-    $('kaneBadge').classList.add('hidden');
-    $('kaneBadge').classList.remove('flex');
-    $('kaneToggleBtn').classList.remove('bg-kuzz-orange');
-    $('kaneToggleBtn').classList.add('bg-white/15');
-    toast('Modo Sucursal · operación estándar', 2000);
+    $('kanePasswordError').classList.remove('hidden');
+    $('kanePasswordInput').value = '';
+    $('kanePasswordInput').focus();
   }
-  refreshIcons();
-  renderFormulaSummary();
-  renderCurrentStep();
-  saveState();
 }
 
 /* ---------- Volume selector ---------- */
@@ -1214,6 +1148,8 @@ function renderFormulaSummary() {
     items = [
       { icon: 'droplets', label: 'Agua purificada', value: `${F.water.toLocaleString('es-PE')} ml`, sub: `${F.waterL} L · ${F.evaporationNote}` },
       { icon: 'leaf', label: 'Hierba luisa fresca', value: F.hierba, sub: F.hierbaDetail },
+      { icon: 'sparkles', label: 'Canela entera', value: F.canela, sub: 'para el hervor del agua' },
+      { icon: 'sparkles', label: 'Clavo de olor', value: F.clavo, sub: 'para el hervor del agua' },
       { icon: 'citrus', label: 'Maracuyá maduro', value: `${F.maracuyaCount} unidad${F.maracuyaCount > 1 ? 'es' : ''}`, sub: `~${F.maracuyaJuice} ml de zumo colado` },
       { icon: 'flask-conical', label: 'Endulzante Kuzz', value: `${F.kostherSpoons} cucharadas`, sub: `~${F.kostherGrams} g` },
       { icon: 'sprout', label: 'Menta fresca', value: `${F.menta} cogollo${F.menta > 1 ? 's' : ''}`, sub: '1 por botella' },
@@ -1223,6 +1159,8 @@ function renderFormulaSummary() {
     items = [
       { icon: 'droplets', label: 'Agua purificada', value: `${F.water.toLocaleString('es-PE')} ml`, sub: `${F.waterL} L · incluye compensación evaporación` },
       { icon: 'package', label: 'Base Herbal', value: '1 Bolsa Kit Herbal Kuzz #01', sub: `Dosificada para ${F.liters}L` },
+      { icon: 'sparkles', label: 'Canela entera', value: F.canela, sub: 'para el hervor del agua' },
+      { icon: 'sparkles', label: 'Clavo de olor', value: F.clavo, sub: 'para el hervor del agua' },
       { icon: 'flask-conical', label: 'Endulzante', value: '1 Sobre de Endulzante Kuzz', sub: `${F.kostherGrams} g para ${F.liters}L` },
       { icon: 'citrus', label: 'Maracuyá fresco', value: `${F.maracuyaCount} unidad${F.maracuyaCount > 1 ? 'es' : ''}`, sub: 'Insumo fresco local' },
       { icon: 'sprout', label: 'Menta fresca', value: `${F.menta} cogollo${F.menta > 1 ? 's' : ''}`, sub: '1 por botella · insumo fresco local' },
@@ -1246,25 +1184,31 @@ function renderFormulaSummary() {
 
 /* ---------- Lista de Compras ---------- */
 function renderShoppingList() {
-  const items = SHOPPING_LISTS[state.volume];
+  const items = getShoppingItems(state.volume, state.mode);
   const c = $('shoppingList');
   c.innerHTML = items.map(item => {
     const key = `v${state.volume}_${item.id}`;
     const checked = state.shoppingChecks[key] || false;
+    const price = state.shoppingPrices[key] || '';
     return `
-      <label class="flex items-start gap-3 p-3 rounded-xl border ${checked ? 'border-kuzz-green bg-kuzz-green/5 dark:bg-kuzz-green/10' : 'border-kuzz-border dark:border-kuzz-border-dark bg-kuzz-card dark:bg-kuzz-black/30'} cursor-pointer hover:border-kuzz-green transition">
-        <input type="checkbox" data-shopping-key="${key}" ${checked ? 'checked' : ''} class="mt-1 w-5 h-5 accent-kuzz-green shrink-0">
-        <div class="flex items-start gap-2 min-w-0 flex-1">
-          <i data-lucide="${item.icon}" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i>
-          <div class="min-w-0">
-            <div class="text-sm font-semibold ${checked ? 'line-through opacity-60' : ''}">${item.label}</div>
-            <div class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60">${item.sub}</div>
+      <div class="flex items-start gap-2 p-3 rounded-xl border ${checked ? 'border-kuzz-green bg-kuzz-green/5 dark:bg-kuzz-green/10' : 'border-kuzz-border dark:border-kuzz-border-dark bg-kuzz-card dark:bg-kuzz-black/30'} transition">
+        <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0">
+          <input type="checkbox" data-shopping-key="${key}" ${checked ? 'checked' : ''} class="mt-1 w-5 h-5 accent-kuzz-green shrink-0">
+          <div class="flex items-start gap-2 min-w-0 flex-1">
+            <i data-lucide="${item.icon}" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i>
+            <div class="min-w-0">
+              <div class="text-sm font-semibold ${checked ? 'line-through opacity-60' : ''}">${item.label}</div>
+              <div class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60">${item.sub}</div>
+            </div>
           </div>
+        </label>
+        <div class="flex items-center gap-1 shrink-0 mt-0.5">
+          <span class="text-xs font-bold text-kuzz-black/50 dark:text-kuzz-cream/50">S/</span>
+          <input type="number" data-price-key="${key}" value="${price}" step="0.10" min="0" placeholder="0.00" class="w-20 text-right text-sm font-semibold bg-kuzz-cream dark:bg-kuzz-black/40 border border-kuzz-border dark:border-kuzz-border-dark rounded-lg px-2 py-1 focus:outline-none focus:border-kuzz-green dark:focus:border-kuzz-orange transition">
         </div>
-      </label>`;
+      </div>`;
   }).join('');
 
-  // Bind checkboxes
   c.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     cb.onchange = (e) => {
       const key = e.target.dataset.shoppingKey;
@@ -1273,30 +1217,136 @@ function renderShoppingList() {
       renderShoppingList();
     };
   });
+
+  c.querySelectorAll('input[type="number"]').forEach(inp => {
+    inp.oninput = (e) => {
+      const key = e.target.dataset.priceKey;
+      const val = e.target.value;
+      if (val === '' || val === null) {
+        delete state.shoppingPrices[key];
+      } else {
+        state.shoppingPrices[key] = parseFloat(val) || 0;
+      }
+      saveState();
+      renderShoppingRoiPanel();
+    };
+  });
+
+  renderShoppingRoiPanel();
+  refreshIcons();
+}
+
+function renderShoppingRoiPanel() {
+  const F = FORMULAS[state.volume];
+  const items = getShoppingItems(state.volume, state.mode);
+  const totalCost = items.reduce((sum, item) => {
+    const key = `v${state.volume}_${item.id}`;
+    return sum + (state.shoppingPrices[key] || 0);
+  }, 0);
+
+  const costPerBottle = F.bottles > 0 ? totalCost / F.bottles : 0;
+  const directPrice = 4.50, bodegaPrice = 3.80;
+  const directRevenue = directPrice * F.bottles;
+  const bodegaRevenue = bodegaPrice * F.bottles;
+  const directProfit = directRevenue - totalCost;
+  const bodegaProfit = bodegaRevenue - totalCost;
+  const directRoi = totalCost > 0 ? ((directRevenue - totalCost) / totalCost) * 100 : 0;
+  const bodegaRoi = totalCost > 0 ? ((bodegaRevenue - totalCost) / totalCost) * 100 : 0;
+  const fmtMoney = (v) => `S/ ${v.toFixed(2)}`;
+  const hasPrices = totalCost > 0;
+  const profitColor = (p) => p >= 0 ? 'text-kuzz-orange-light' : 'text-red-300';
+
+  const c = $('shoppingRoiPanel');
+  if (!c) return;
+  c.innerHTML = `
+    <div class="bg-kuzz-green dark:bg-kuzz-card-dark rounded-2xl p-4 text-white">
+      <div class="flex items-center gap-2 mb-3">
+        <i data-lucide="calculator" class="w-4 h-4 text-kuzz-orange-light"></i>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider">Resumen de Costos y ROI</h3>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mb-3">
+        <div class="bg-white/10 rounded-xl p-3 text-center">
+          <div class="text-[10px] uppercase tracking-wider opacity-70">Costo Total Insumos</div>
+          <div class="text-lg font-black timer-digit">${fmtMoney(totalCost)}</div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-3 text-center">
+          <div class="text-[10px] uppercase tracking-wider opacity-70">Costo por Botella 1L</div>
+          <div class="text-lg font-black timer-digit">${fmtMoney(costPerBottle)}</div>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <div class="bg-white/10 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold uppercase tracking-wider opacity-70">Venta Directa</span>
+            <span class="text-xs opacity-70">${fmtMoney(directPrice)} por botella</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1 text-center">
+            <div><div class="text-[10px] uppercase opacity-60">Ingreso</div><div class="text-sm font-bold timer-digit">${fmtMoney(directRevenue)}</div></div>
+            <div><div class="text-[10px] uppercase opacity-60">Ganancia</div><div class="text-sm font-bold timer-digit ${profitColor(directProfit)}">${hasPrices ? fmtMoney(directProfit) : '—'}</div></div>
+            <div><div class="text-[10px] uppercase opacity-60">ROI</div><div class="text-sm font-black timer-digit ${profitColor(directRoi)}">${hasPrices ? directRoi.toFixed(1) + '%' : '—'}</div></div>
+          </div>
+        </div>
+        <div class="bg-white/10 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold uppercase tracking-wider opacity-70">Venta a Bodegas</span>
+            <span class="text-xs opacity-70">${fmtMoney(bodegaPrice)} por botella</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1 text-center">
+            <div><div class="text-[10px] uppercase opacity-60">Ingreso</div><div class="text-sm font-bold timer-digit">${fmtMoney(bodegaRevenue)}</div></div>
+            <div><div class="text-[10px] uppercase opacity-60">Ganancia</div><div class="text-sm font-bold timer-digit ${profitColor(bodegaProfit)}">${hasPrices ? fmtMoney(bodegaProfit) : '—'}</div></div>
+            <div><div class="text-[10px] uppercase opacity-60">ROI</div><div class="text-sm font-black timer-digit ${profitColor(bodegaRoi)}">${hasPrices ? bodegaRoi.toFixed(1) + '%' : '—'}</div></div>
+          </div>
+        </div>
+      </div>
+      ${hasPrices ? '' : '<div class="text-xs opacity-60 text-center mt-2">Ingresa los precios pagados para calcular ganancia y ROI.</div>'}
+    </div>
+  `;
   refreshIcons();
 }
 
 async function copyShoppingList() {
-  const items = SHOPPING_LISTS[state.volume];
+  const items = getShoppingItems(state.volume, state.mode);
   const F = FORMULAS[state.volume];
+  const totalCost = items.reduce((sum, item) => {
+    const key = `v${state.volume}_${item.id}`;
+    return sum + (state.shoppingPrices[key] || 0);
+  }, 0);
+
   const lines = [
     `*Lista de Compras Kuzzapp*`,
-    `*Hierba Luisa, Maracuyá & Menta — ${F.liters}L (${F.bottles} botellas)*`,
+    `*Hierba Luisa, Maracuyá, Canela, Clavo & Menta — ${F.liters}L (${F.bottles} botellas)*`,
     ``,
-    ...items.map((it, i) => {
+    ...items.map((it) => {
       const key = `v${state.volume}_${it.id}`;
       const mark = state.shoppingChecks[key] ? '[x]' : '[ ]';
-      return `${mark} ${it.label} (${it.sub})`;
+      const price = state.shoppingPrices[key];
+      const priceStr = price ? ` — S/ ${price.toFixed(2)}` : '';
+      return `${mark} ${it.label} (${it.sub})${priceStr}`;
     }),
     ``,
-    `Generado por Kuzzapp`,
   ];
+
+  if (totalCost > 0) {
+    const costPerBottle = totalCost / F.bottles;
+    const directRevenue = 4.50 * F.bottles;
+    const bodegaRevenue = 3.80 * F.bottles;
+    const directProfit = directRevenue - totalCost;
+    const bodegaProfit = bodegaRevenue - totalCost;
+    const directRoi = ((directRevenue - totalCost) / totalCost) * 100;
+    const bodegaRoi = ((bodegaRevenue - totalCost) / totalCost) * 100;
+    lines.push(`*Costo Total:* S/ ${totalCost.toFixed(2)}`);
+    lines.push(`*Costo por botella:* S/ ${costPerBottle.toFixed(2)}`);
+    lines.push(`*Venta Directa (S/ 4.50):* Ingreso S/ ${directRevenue.toFixed(2)} · Ganancia S/ ${directProfit.toFixed(2)} · ROI ${directRoi.toFixed(1)}%`);
+    lines.push(`*Venta Bodegas (S/ 3.80):* Ingreso S/ ${bodegaRevenue.toFixed(2)} · Ganancia S/ ${bodegaProfit.toFixed(2)} · ROI ${bodegaRoi.toFixed(1)}%`);
+    lines.push(``);
+  }
+  lines.push(`Generado por Kuzzapp`);
+
   const text = lines.join('\n');
   try {
     await navigator.clipboard.writeText(text);
     toast('Lista copiada · pégala en WhatsApp');
   } catch (e) {
-    // fallback: abrir WhatsApp con el texto
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
     toast('Abriendo WhatsApp...');
@@ -1446,9 +1496,8 @@ function nextStep() {
     if (state.currentStep === 2 && !state.heatingStart) {
       state.heatingStart = Date.now();
       startHeatingChronometer();
-      $('heatingPill').classList.remove('hidden');
-      $('heatingPill').classList.add('flex');
-      $('heatingPillMobile').classList.remove('hidden');
+      $('heatingPill').classList.add('active');
+      $('heatingPillMobile').classList.add('active');
     }
     renderCurrentStep();
     saveState();
@@ -1605,7 +1654,7 @@ function closeModal(id) {
   $(id).classList.add('hidden');
 }
 
-/* ---------- Master Recipe Book ---------- */
+/* ---------- Master Recipe Book (Modo Kane) ---------- */
 function openRecipeBook() {
   const c = $('recipeBookContent');
   c.innerHTML = MASTER_RECIPES.map(r => {
@@ -1648,6 +1697,56 @@ function openRecipeBook() {
   openModal('recipeBookModal');
 }
 
+/* ---------- Sucursal Recipe Book (Receta completa legible) ---------- */
+function openSucursalRecipeBook() {
+  const F = FORMULAS[state.volume];
+  const kane = state.mode === 'kane';
+  const steps = buildSteps(F, kane);
+  const c = $('sucursalRecipeContent');
+
+  // Header con insumos
+  let html = `
+    <div class="bg-kuzz-cream dark:bg-kuzz-black/40 rounded-xl p-4 border border-kuzz-border dark:border-kuzz-border-dark">
+      <div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-2">Insumos para ${F.liters} Litro${F.liters > 1 ? 's' : ''} (${F.bottles} botellas)</div>
+      <ul class="space-y-1 text-sm">
+        <li class="flex items-start gap-2"><i data-lucide="droplets" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Agua purificada:</b> ${F.water.toLocaleString('es-PE')} ml (${F.waterL} L)</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="leaf" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Hierba luisa fresca:</b> ${F.hierba} (${F.hierbaDetail})</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Canela entera:</b> ${F.canela}</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Clavo de olor:</b> ${F.clavo}</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="citrus" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Maracuyá maduro:</b> ${F.maracuyaCount} unidad${F.maracuyaCount > 1 ? 'es' : ''} (~${F.maracuyaJuice} ml zumo)</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="flask-conical" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Endulzante Kuzz:</b> ${F.kostherGrams} g</span></li>
+        <li class="flex items-start gap-2"><i data-lucide="sprout" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i><span><b>Menta fresca:</b> ${F.menta} cogollo${F.menta > 1 ? 's' : ''} (1 por botella)</span></li>
+      </ul>
+    </div>
+  `;
+
+  // Pasos numerados
+  html += `<div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-2">Preparación paso a paso</div>`;
+  html += `<div class="space-y-3">`;
+  steps.forEach(step => {
+    const isPost = step.phase === 'post';
+    html += `
+      <div class="bg-kuzz-card dark:bg-kuzz-black/30 rounded-xl p-4 border border-kuzz-border dark:border-kuzz-border-dark">
+        <div class="flex items-start gap-3">
+          <div class="shrink-0 w-10 h-10 rounded-xl bg-kuzz-green dark:bg-kuzz-orange text-white grid place-items-center font-black text-lg shrink-0">${step.n}</div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] font-bold uppercase tracking-widest text-kuzz-orange mb-0.5">${isPost ? 'Post-infusión' : 'Fase de mesa'}</div>
+            <div class="font-extrabold text-sm sm:text-base flex items-center gap-2">
+              <i data-lucide="${step.icon}" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light shrink-0"></i>
+              ${step.title}
+            </div>
+            <div class="text-sm mt-1 leading-relaxed">${step.body}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+
+  c.innerHTML = html;
+  openModal('sucursalRecipeModal');
+}
+
 /* ---------- Lote ---------- */
 function generateLoteCode() {
   const d = new Date();
@@ -1663,8 +1762,8 @@ function finishLote() {
   const elapsed = state.heatingStart ? Math.floor((Date.now() - state.heatingStart) / 1000) : 0;
   if (timers.heating) { clearInterval(timers.heating); timers.heating = null; }
   state.heatingFrozen = elapsed;
-  $('heatingPill').classList.add('hidden');
-  $('heatingPillMobile').classList.add('hidden');
+  $('heatingPill').classList.remove('active');
+  $('heatingPillMobile').classList.remove('active');
 
   const lote = {
     code,
@@ -1785,9 +1884,9 @@ async function installApp() {
 /* ---------- Inject manifest dinámicamente ---------- */
 (function injectManifest() {
   const manifest = {
-    name: 'Kuzzapp — Hierba Luisa, Maracuyá & Menta',
+    name: 'Kuzzapp — Hierba Luisa, Maracuyá, Canela, Clavo & Menta',
     short_name: 'Kuzzapp',
-    description: 'SOP App para preparar la bebida oficial Hierba Luisa, Maracuyá & Menta',
+    description: 'SOP App para preparar la bebida oficial Hierba Luisa, Maracuyá, Canela, Clavo & Menta',
     start_url: '.',
     display: 'standalone',
     orientation: 'portrait',
@@ -1810,9 +1909,13 @@ async function installApp() {
 
 /* ---------- Bind events ---------- */
 function bindEvents() {
-  $('themeBtn').onclick = toggleTheme;
   $('kaneToggleBtn').onclick = toggleKaneMode;
   $('installBtn').onclick = installApp;
+  $('recipeBookBtn').onclick = openSucursalRecipeBook;
+  $('kanePasswordConfirmBtn').onclick = confirmKanePassword;
+  $('kanePasswordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmKanePassword();
+  });
   $('hornillaBtn').onclick = openHornilla;
   $('hornillaFloatingBtn').onclick = openHornilla;
   $('hornillaCloseBtn').onclick = closeHornilla;
@@ -1888,10 +1991,8 @@ async function init() {
   bindEvents();
   bindWakeLockEvents();
 
-  // Aplicar tema (auto o manual)
-  if (state.themeMode === 'auto') {
-    state.theme = autoThemeByHour();
-  }
+  // Aplicar tema (auto por horario)
+  state.theme = autoThemeByHour();
   applyTheme();
   startThemeAutoCheck();
 
