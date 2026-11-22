@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>provex · gestor de empresas y anuncios</title>
+<link rel="icon" type="image/png" href="brand/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          provex: {
+            primario: '#1E40AF',
+            acento:  '#FACC15',
+            neutral: '#F8FAFC',
+            oscuro:  '#0F172A',
+          }
+        },
+        fontFamily: { sans: ['Montserrat', 'sans-serif'] }
+      }
+    }
+  }
+</script>
+<style>
+  :root{
+    --provex-primario:#1E40AF;
+    --provex-acento:#FACC15;
+    --provex-neutral:#F8FAFC;
+    --provex-oscuro:#0F172A;
+  }
+  html,body{font-family:'Montserrat',sans-serif;}
+  body{background:var(--provex-neutral);color:var(--provex-oscuro);}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:#e2e8f0;}
+  ::-webkit-scrollbar-thumb{background:var(--provex-primario);border-radius:8px;}
+  .btn-primary{background:var(--provex-primario);color:#fff;font-weight:700;transition:.2s;}
+  .btn-primary:hover{background:#1E3A8A;}
+  .btn-accent{background:var(--provex-acento);color:var(--provex-oscuro);font-weight:800;transition:.2s;}
+  .btn-accent:hover{background:#EAB308;}
+  .btn-ghost{background:#fff;border:2px solid var(--provex-primario);color:var(--provex-primario);font-weight:700;transition:.2s;}
+  .btn-ghost:hover{background:var(--provex-primario);color:#fff;}
+  .tab-active{background:var(--provex-oscuro);color:var(--provex-acento);}
+  .field-label{font-weight:600;font-size:.78rem;letter-spacing:.03em;text-transform:uppercase;color:#475569;}
+  .field-input{width:100%;padding:.65rem .85rem;border:2px solid #cbd5e1;border-radius:.6rem;background:#fff;font-weight:500;transition:.15s;outline:none;}
+  .field-input:focus{border-color:var(--provex-primario);box-shadow:0 0 0 3px rgba(30,64,175,.15);}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:1rem;box-shadow:0 4px 14px rgba(15,23,42,.04);}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .7rem;border-radius:999px;font-size:.72rem;font-weight:700;}
+  .drag-over{outline:3px dashed var(--provex-primario);outline-offset:4px;background:rgba(30,64,175,.05);}
+  [data-lucide]{width:1em;height:1em;display:inline-block;vertical-align:-.125em;}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;padding:1rem;}
+  details>summary{list-style:none;cursor:pointer;}
+  details>summary::-webkit-details-marker{display:none;}
+  .ad-preview-banner{background:var(--preview-bg,#1E40AF);color:var(--preview-fg,#fff);border-radius:.6rem;padding:.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+  .ad-preview-card{background:#fff;border:1px solid #e2e8f0;border-radius:.8rem;padding:1rem;display:flex;gap:.85rem;align-items:center;border-left:6px solid var(--preview-bg,#1E40AF);}
+  .ad-preview-widget{background:#fff;border:1px solid #e2e8f0;border-radius:.8rem;padding:.85rem;display:flex;flex-direction:column;gap:.5rem;width:240px;}
+  .ad-preview-modal{background:#fff;border-radius:1rem;padding:1.5rem;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(15,23,42,.25);text-align:center;}
+  .ad-preview-toast{background:var(--preview-bg,#0F172A);color:var(--preview-fg,#fff);border-radius:.6rem;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.85rem;}
+  .switch{position:relative;display:inline-block;width:42px;height:24px;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#cbd5e1;border-radius:999px;transition:.2s;}
+  .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch input:checked+.slider{background:var(--provex-primario);}
+  .switch input:checked+.slider:before{transform:translateX(18px);}
+  .toast{position:fixed;bottom:1.25rem;right:1.25rem;background:var(--provex-oscuro);color:#fff;padding:.85rem 1.2rem;border-radius:.7rem;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:80;display:flex;align-items:center;gap:.6rem;font-weight:600;transform:translateY(120%);opacity:0;transition:.3s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============ HEADER GLOBAL ============ -->
+<header class="bg-provex-oscuro text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+    <div class="flex items-center gap-3">
+      <img src="brand/logo-claro.png" alt="provex" class="h-9 w-auto" onerror="this.style.display='none'">
+      <span class="text-xs font-semibold tracking-wide text-provex-acento uppercase hidden sm:block">gestor</span>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="btnImport" class="btn-ghost text-sm px-3 py-2 rounded-lg flex items-center gap-2" style="background:transparent;color:var(--provex-acento);border-color:var(--provex-acento);">
+        <i data-lucide="upload"></i> Importar JSON
+      </button>
+      <button id="btnExportEmpresas" class="btn-accent text-sm px-3 py-2 rounded-lg flex items-center gap-2">
+        <i data-lucide="building-2"></i> Exportar provex-empresas.json
+      </button>
+      <button id="btnExportAds" class="btn-accent text-sm px-3 py-2 rounded-lg flex items-center gap-2">
+        <i data-lucide="megaphone"></i> Exportar provex-ads.json
+      </button>
+      <input type="file" id="importInput" accept="application/json,.json" class="hidden" multiple />
+    </div>
+  </div>
+  <!-- Tabs -->
+  <nav class="bg-provex-oscuro/95 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex gap-1">
+      <button data-tab="empresas" class="tab-btn px-5 py-3 font-bold text-sm flex items-center gap-2 border-b-4 border-transparent transition">
+        <i data-lucide="store"></i> Empresas
+      </button>
+      <button data-tab="anuncios" class="tab-btn px-5 py-3 font-bold text-sm flex items-center gap-2 border-b-4 border-transparent transition">
+        <i data-lucide="megaphone"></i> Directorio de Anuncios
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ PESTAÑA EMPRESAS ============ -->
+<main id="tabEmpresas" class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+    <!-- Panel Izquierdo: Formulario -->
+    <section class="xl:col-span-5">
+      <div class="card p-5 sticky top-32">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="formEmpresaTitulo" class="text-lg font-extrabold flex items-center gap-2">
+            <i data-lucide="plus-circle" style="color:var(--provex-primario)"></i>
+            Nueva empresa en provex
+          </h2>
+          <button id="btnResetEmpresa" class="text-xs text-slate-500 hover:text-provex-primario flex items-center gap-1">
+            <i data-lucide="rotate-ccw"></i> Limpiar
+          </button>
+        </div>
+
+        <form id="formEmpresa" class="space-y-4">
+          <input type="hidden" id="empresaId" />
+
+          <!-- Datos generales -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="info"></i> Datos generales</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">Nombre de la empresa</label>
+                <input id="empNombre" required class="field-input" placeholder="Kuzz Bebidas" />
+              </div>
+              <div>
+                <label class="field-label">Slug / ID único</label>
+                <input id="empSlug" required class="field-input" placeholder="kuzz" />
+              </div>
+              <div>
+                <label class="field-label">Rubro / Categoría</label>
+                <select id="empRubro" class="field-input">
+                  <option value="Bebidas">Bebidas</option>
+                  <option value="Abarrotes">Abarrotes</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Limpieza">Limpieza</option>
+                  <option value="Lacteos">Lacteos</option>
+                  <option value="Frutas y Verduras">Frutas y Verduras</option>
+                  <option value="Carnes y Embutidos">Carnes y Embutidos</option>
+                  <option value="Panaderia">Panaderia</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Zona de cobertura / entrega</label>
+                <input id="empZona" class="field-input" placeholder="Lima Norte, Sur, Todo Lima" />
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Eslogan</label>
+              <input id="empEslogan" class="field-input" placeholder="Refrescate con lo mejor" />
+            </div>
+            <div>
+              <label class="field-label">Descripcion corta</label>
+              <textarea id="empDescripcion" rows="2" class="field-input" placeholder="Empresa aliada de provex dedicada a..."></textarea>
+            </div>
+          </div>
+
+          <!-- Identidad visual -->
+          <div class="space-y-3 pt-2 border-t border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="palette"></i> Identidad visual</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div>
+                <label class="field-label">Primario</label>
+                <div class="flex gap-1">
+                  <input type="color" id="empColorPrimario" value="#1E40AF" class="w-10 h-10 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                  <input id="empColorPrimarioHex" class="field-input text-xs" value="#1E40AF" />
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Acento</label>
+                <div class="flex gap-1">
+                  <input type="color" id="empColorAcento" value="#FACC15" class="w-10 h-10 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                  <input id="empColorAcentoHex" class="field-input text-xs" value="#FACC15" />
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Neutral</label>
+                <div class="flex gap-1">
+                  <input type="color" id="empColorNeutral" value="#F8FAFC" class="w-10 h-10 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                  <input id="empColorNeutralHex" class="field-input text-xs" value="#F8FAFC" />
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Oscuro</label>
+                <div class="flex gap-1">
+                  <input type="color" id="empColorOscuro" value="#0F172A" class="w-10 h-10 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                  <input id="empColorOscuroHex" class="field-input text-xs" value="#0F172A" />
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Ruta / URL del logotipo</label>
+              <input id="empLogo" class="field-input" placeholder="brand/kuzz-logo.png o https://..." />
+            </div>
+          </div>
+
+          <!-- Contacto -->
+          <div class="space-y-3 pt-2 border-t border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="share-2"></i> Contacto y Redes Sociales</h3>
+            <div>
+              <label class="field-label">Numero WhatsApp (pedidos directos)</label>
+              <input id="empWhatsapp" class="field-input" placeholder="+51 999 888 777" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">Instagram</label>
+                <input id="empInstagram" class="field-input" placeholder="https://instagram.com/..." />
+              </div>
+              <div>
+                <label class="field-label">TikTok</label>
+                <input id="empTiktok" class="field-input" placeholder="https://tiktok.com/@..." />
+              </div>
+              <div>
+                <label class="field-label">Facebook</label>
+                <input id="empFacebook" class="field-input" placeholder="https://facebook.com/..." />
+              </div>
+              <div>
+                <label class="field-label">Sitio web oficial</label>
+                <input id="empWeb" class="field-input" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+            <div>
+              <label class="field-label">Estado de la empresa</label>
+              <p class="text-xs text-slate-500">Activa visible en la tienda / Pausada oculta</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="empActiva" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button type="submit" id="btnGuardarEmpresa" class="btn-primary px-4 py-3 rounded-lg flex-1 flex items-center justify-center gap-2">
+              <i data-lucide="save"></i> Guardar empresa
+            </button>
+            <button type="button" id="btnCancelarEdicion" class="btn-ghost px-4 py-3 rounded-lg hidden flex items-center gap-2">
+              <i data-lucide="x"></i> Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Panel Derecho: Listado + Productos -->
+    <section class="xl:col-span-7 space-y-5">
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="list" style="color:var(--provex-primario)"></i> Empresas registradas <span id="countEmpresas" class="chip" style="background:var(--provex-acento);color:var(--provex-oscuro)">0</span></h2>
+          <div class="flex items-center gap-2">
+            <input id="searchEmpresas" class="field-input text-sm" placeholder="Buscar empresa..." style="padding:.45rem .8rem;max-width:200px" />
+          </div>
+        </div>
+        <div id="listaEmpresas" class="space-y-3"></div>
+        <div id="emptyEmpresas" class="text-center py-10 text-slate-400 hidden">
+          <i data-lucide="store" style="width:48px;height:48px;display:block;margin:0 auto .5rem"></i>
+          <p class="font-semibold">No hay empresas registradas aun</p>
+          <p class="text-sm">Crea la primera empresa aliada de provex usando el formulario de la izquierda.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ============ PESTAÑA ANUNCIOS ============ -->
+<main id="tabAnuncios" class="max-w-7xl mx-auto px-4 sm:px-6 py-6 hidden">
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+    <!-- Panel Izquierdo: Formulario -->
+    <section class="xl:col-span-6">
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="formAdTitulo" class="text-lg font-extrabold flex items-center gap-2">
+            <i data-lucide="plus-circle" style="color:var(--provex-primario)"></i> Nuevo anuncio para apps KOSTHER
+          </h2>
+          <button id="btnResetAd" class="text-xs text-slate-500 hover:text-provex-primario flex items-center gap-1">
+            <i data-lucide="rotate-ccw"></i> Limpiar
+          </button>
+        </div>
+
+        <form id="formAd" class="space-y-4">
+          <input type="hidden" id="adId" />
+
+          <!-- Apps destino -->
+          <div class="space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="apps"></i> 1. Apps destino</h3>
+            <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+              <label class="flex items-center gap-2 text-sm font-semibold">
+                <input type="checkbox" id="chkAllApps" class="w-4 h-4 accent-provex-primario" />
+                Todas las apps (broadcast)
+              </label>
+              <span id="appsSelectedCount" class="chip" style="background:#e0e7ff;color:var(--provex-primario)">0 apps</span>
+            </div>
+            <div id="appsGrid" class="space-y-3 max-h-72 overflow-auto pr-2"></div>
+          </div>
+
+          <!-- Tipo -->
+          <div class="space-y-3 pt-2 border-t border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="layout"></i> 2. Tipo / Formato del anuncio</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <label class="ad-type-card cursor-pointer">
+                <input type="radio" name="adTipo" value="banner-superior" class="hidden peer" checked />
+                <div class="border-2 border-slate-200 rounded-lg p-2.5 peer-checked:border-provex-primario peer-checked:bg-provex-primario/5 transition text-center">
+                  <i data-lucide="banner" class="mx-auto mb-1" style="width:20px;height:20px"></i>
+                  <div class="text-xs font-bold">Banner superior</div>
+                  <div class="text-[10px] text-slate-500">Franja compacta</div>
+                </div>
+              </label>
+              <label class="ad-type-card cursor-pointer">
+                <input type="radio" name="adTipo" value="tarjeta-nativa" class="hidden peer" />
+                <div class="border-2 border-slate-200 rounded-lg p-2.5 peer-checked:border-provex-primario peer-checked:bg-provex-primario/5 transition text-center">
+                  <i data-lucide="credit-card" class="mx-auto mb-1" style="width:20px;height:20px"></i>
+                  <div class="text-xs font-bold">Tarjeta nativa</div>
+                  <div class="text-[10px] text-slate-500">Integrada en listas</div>
+                </div>
+              </label>
+              <label class="ad-type-card cursor-pointer">
+                <input type="radio" name="adTipo" value="widget-lateral" class="hidden peer" />
+                <div class="border-2 border-slate-200 rounded-lg p-2.5 peer-checked:border-provex-primario peer-checked:bg-provex-primario/5 transition text-center">
+                  <i data-lucide="panel-right" class="mx-auto mb-1" style="width:20px;height:20px"></i>
+                  <div class="text-xs font-bold">Widget lateral</div>
+                  <div class="text-[10px] text-slate-500">Cuadro discreto</div>
+                </div>
+              </label>
+              <label class="ad-type-card cursor-pointer">
+                <input type="radio" name="adTipo" value="modal-pausa" class="hidden peer" />
+                <div class="border-2 border-slate-200 rounded-lg p-2.5 peer-checked:border-provex-primario peer-checked:bg-provex-primario/5 transition text-center">
+                  <i data-lucide="timer" class="mx-auto mb-1" style="width:20px;height:20px"></i>
+                  <div class="text-xs font-bold">Modal pausa</div>
+                  <div class="text-[10px] text-slate-500">Pomodoro / descansos</div>
+                </div>
+              </label>
+              <label class="ad-type-card cursor-pointer">
+                <input type="radio" name="adTipo" value="toast-flotante" class="hidden peer" />
+                <div class="border-2 border-slate-200 rounded-lg p-2.5 peer-checked:border-provex-primario peer-checked:bg-provex-primario/5 transition text-center">
+                  <i data-lucide="bell" class="mx-auto mb-1" style="width:20px;height:20px"></i>
+                  <div class="text-xs font-bold">Toast flotante</div>
+                  <div class="text-[10px] text-slate-500">Aviso inferior</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Contenido -->
+          <div class="space-y-3 pt-2 border-t border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="file-text"></i> 3. Contenido del anuncio</h3>
+            <div class="flex items-center gap-3 mb-1">
+              <label class="flex items-center gap-2 text-sm font-semibold">
+                <input type="radio" name="adOrigen" value="empresa" checked class="accent-provex-primario" />
+                Vincular a empresa
+              </label>
+              <label class="flex items-center gap-2 text-sm font-semibold">
+                <input type="radio" name="adOrigen" value="manual" class="accent-provex-primario" />
+                Personalizar manual
+              </label>
+            </div>
+
+            <!-- Bloque vincular empresa -->
+            <div id="bloqueEmpresa" class="space-y-3">
+              <div>
+                <label class="field-label">Empresa vinculada</label>
+                <select id="adEmpresaId" class="field-input">
+                  <option value="">-- Selecciona empresa --</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Producto destacado (opcional)</label>
+                <select id="adProductoId" class="field-input">
+                  <option value="">-- Sin producto especifico --</option>
+                </select>
+              </div>
+              <p class="text-xs text-slate-500">Los colores, nombre y enlace se autocompletan desde la empresa seleccionada.</p>
+            </div>
+
+            <!-- Bloque manual -->
+            <div id="bloqueManual" class="space-y-3 hidden">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <label class="field-label">Primario</label>
+                  <input type="color" id="adColorPrimario" value="#1E40AF" class="w-full h-9 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                </div>
+                <div>
+                  <label class="field-label">Acento</label>
+                  <input type="color" id="adColorAcento" value="#FACC15" class="w-full h-9 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                </div>
+                <div>
+                  <label class="field-label">Neutral</label>
+                  <input type="color" id="adColorNeutral" value="#F8FAFC" class="w-full h-9 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                </div>
+                <div>
+                  <label class="field-label">Oscuro</label>
+                  <input type="color" id="adColorOscuro" value="#0F172A" class="w-full h-9 rounded-lg border-2 border-slate-200 cursor-pointer p-0" />
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">Titulo del anuncio</label>
+                <input id="adTitulo" required class="field-input" placeholder="Oferta especial en Bebidas" />
+              </div>
+              <div>
+                <label class="field-label">Texto del boton CTA</label>
+                <input id="adCta" class="field-input" placeholder="Pedir por WhatsApp" />
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Texto persuasivo corto</label>
+              <textarea id="adTexto" rows="2" class="field-input" placeholder="Llevate 2x1 en gaseosas de 1.5L solo por hoy..."></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">URL destino</label>
+                <input id="adUrl" class="field-input" placeholder="https://wa.me/51999..." />
+              </div>
+              <div>
+                <label class="field-label">Ruta / URL imagen</label>
+                <input id="adImagen" class="field-input" placeholder="brand/oferta-gaseosas.png" />
+              </div>
+              <div>
+                <label class="field-label">Prioridad</label>
+                <select id="adPrioridad" class="field-input">
+                  <option value="alta">Alta</option>
+                  <option value="media" selected>Media</option>
+                  <option value="baja">Baja</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <label class="flex items-center gap-2 text-sm font-semibold pb-2">
+                  <input type="checkbox" id="adActivo" checked class="w-4 h-4 accent-provex-primario" />
+                  Anuncio activo
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2 border-t border-slate-200">
+            <button type="submit" id="btnGuardarAd" class="btn-primary px-4 py-3 rounded-lg flex-1 flex items-center justify-center gap-2">
+              <i data-lucide="save"></i> Guardar anuncio
+            </button>
+            <button type="button" id="btnCancelarAd" class="btn-ghost px-4 py-3 rounded-lg hidden flex items-center gap-2">
+              <i data-lucide="x"></i> Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Panel Derecho: Vista previa + Listado -->
+    <section class="xl:col-span-6 space-y-5">
+      <div class="card p-5">
+        <h3 class="text-sm font-extrabold uppercase tracking-wider flex items-center gap-2 mb-3"><i data-lucide="eye" style="color:var(--provex-primario)"></i> Vista previa en vivo</h3>
+        <div id="livePreview" class="bg-slate-100 rounded-lg p-4 min-h-[140px] flex items-center justify-center"></div>
+        <p class="text-[11px] text-slate-400 mt-2">La vista previa refleja en tiempo real el tipo de anuncio seleccionado y los colores de la empresa vinculada (o los colores manuales).</p>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="list" style="color:var(--provex-primario)"></i> Anuncios registrados <span id="countAds" class="chip" style="background:var(--provex-acento);color:var(--provex-oscuro)">0</span></h2>
+          <div class="flex items-center gap-2 flex-wrap">
+            <select id="filterAdApp" class="field-input text-sm" style="padding:.45rem .8rem;max-width:180px"><option value="">Todas las apps</option></select>
+            <select id="filterAdTipo" class="field-input text-sm" style="padding:.45rem .8rem;max-width:180px">
+              <option value="">Todos los tipos</option>
+              <option value="banner-superior">Banner superior</option>
+              <option value="tarjeta-nativa">Tarjeta nativa</option>
+              <option value="widget-lateral">Widget lateral</option>
+              <option value="modal-pausa">Modal pausa</option>
+              <option value="toast-flotante">Toast flotante</option>
+            </select>
+          </div>
+        </div>
+        <div id="listaAds" class="space-y-3"></div>
+        <div id="emptyAds" class="text-center py-10 text-slate-400 hidden">
+          <i data-lucide="megaphone" style="width:48px;height:48px;display:block;margin:0 auto .5rem"></i>
+          <p class="font-semibold">No hay anuncios creados</p>
+          <p class="text-sm">Crea el primer anuncio que se mostrara en las apps de KOSTHER ONLINE.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ============ MODAL GESTOR DE PRODUCTOS ============ -->
+<div id="modalProductos" class="modal-backdrop hidden">
+  <div class="card w-full max-w-4xl max-h-[88vh] overflow-auto">
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-5 py-4 flex items-center justify-between rounded-t-xl">
+      <div>
+        <h3 class="text-lg font-extrabold flex items-center gap-2"><i data-lucide="package" style="color:var(--provex-primario)"></i> Catalogo de productos</h3>
+        <p class="text-sm text-slate-500" id="modalProductosEmpresa">Empresa</p>
+      </div>
+      <button id="btnCerrarProductos" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" style="width:24px;height:24px"></i></button>
+    </div>
+    <div class="p-5 space-y-5">
+      <form id="formProducto" class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-slate-50 rounded-lg">
+        <input type="hidden" id="productoId" />
+        <h4 class="sm:col-span-2 text-sm font-bold uppercase tracking-wider text-provex-primario flex items-center gap-1"><i data-lucide="plus"></i> <span id="productoFormTitulo">Agregar producto</span></h4>
+        <div>
+          <label class="field-label">Nombre del producto</label>
+          <input id="prodNombre" required class="field-input" placeholder="Gaseosa Cola 1.5L" />
+        </div>
+        <div>
+          <label class="field-label">Presentacion / Unidad</label>
+          <input id="prodPresentacion" class="field-input" placeholder="Botella 1.5L, Pack x6, Caja x12" />
+        </div>
+        <div>
+          <label class="field-label">Precio unitario (S/)</label>
+          <input id="prodPrecio" type="number" step="0.10" min="0" class="field-input" placeholder="5.50" />
+        </div>
+        <div>
+          <label class="field-label">Precio mayorista (S/)</label>
+          <input id="prodPrecioMayorista" type="number" step="0.10" min="0" class="field-input" placeholder="4.80" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="field-label">Ruta / URL foto</label>
+          <input id="prodFoto" class="field-input" placeholder="brand/productos/cola-1.5l.png o https://..." />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="field-label">Descripcion</label>
+          <textarea id="prodDescripcion" rows="2" class="field-input" placeholder="Bebida refrescante, ideal para acompanar comidas..."></textarea>
+        </div>
+        <div class="flex items-end gap-2">
+          <label class="flex items-center gap-2 text-sm font-semibold pb-2">
+            <input type="checkbox" id="prodDisponible" checked class="w-4 h-4 accent-provex-primario" />
+            Disponible (no agotado)
+          </label>
+        </div>
+        <div class="flex gap-2 sm:justify-end">
+          <button type="button" id="btnResetProducto" class="btn-ghost px-3 py-2 rounded-lg text-sm">Limpiar</button>
+          <button type="submit" id="btnGuardarProducto" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-1"><i data-lucide="save"></i> Guardar producto</button>
+        </div>
+      </form>
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-slate-600">Productos registrados</h4>
+          <span id="countProductos" class="chip" style="background:var(--provex-acento);color:var(--provex-oscuro)">0</span>
+        </div>
+        <div id="listaProductos" class="space-y-2"></div>
+        <div id="emptyProductos" class="text-center py-6 text-slate-400 hidden">
+          <p class="text-sm font-semibold">Sin productos en el catalogo</p>
+          <p class="text-xs">Agrega el primer producto usando el formulario de arriba.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL CONFIRMACION ============ -->
+<div id="modalConfirm" class="modal-backdrop hidden">
+  <div class="card w-full max-w-md p-6">
+    <div class="flex items-start gap-3 mb-4">
+      <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+        <i data-lucide="alert-triangle" style="color:#dc2626;width:22px;height:22px"></i>
+      </div>
+      <div>
+        <h3 id="confirmTitulo" class="text-lg font-extrabold">Confirmar accion</h3>
+        <p id="confirmMensaje" class="text-sm text-slate-500 mt-1">Esta accion no se puede deshacer.</p>
+      </div>
+    </div>
+    <div class="flex gap-2 justify-end">
+      <button id="btnConfirmCancel" class="btn-ghost px-4 py-2 rounded-lg text-sm">Cancelar</button>
+      <button id="btnConfirmOk" class="px-4 py-2 rounded-lg text-sm font-bold text-white" style="background:#dc2626">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toast" class="toast"><i data-lucide="check-circle"></i> <span id="toastMsg">Guardado</span></div>
+
+<script>
+/* =========================================================
+   provex · gestor
+   Estado + persistencia LocalForage
+   ========================================================= */
+const store = localforage.createInstance({ name: 'provex', storeName: 'gestor' });
+const APPS_KOSTHER = [
+  { grupo: 'KOSTHER Edu', apps: [
+    { id:'farmadata', nombre:'Farmadata' },
+    { id:'campus',    nombre:'Campus' },
+    { id:'rsvpread',  nombre:'Rsvpread' },
+  ]},
+  { grupo: 'KOSTHER Workspace', apps: [
+    { id:'kash',   nombre:'Kash' },
+    { id:'flow',   nombre:'Flow' },
+    { id:'protask',nombre:'Protask' },
+    { id:'enfoque',nombre:'Enfoque' },
+    { id:'botik',  nombre:'Botik' },
+  ]},
+  { grupo: 'KOSTHER Ops', apps: [
+    { id:'avistock', nombre:'Avistock' },
+    { id:'arqueo',   nombre:'Arqueo' },
+    { id:'kuotik',   nombre:'Kuotik' },
+    { id:'turnos',   nombre:'Turnos' },
+  ]},
+  { grupo: 'KOSTHER Connect', apps: [
+    { id:'hub',    nombre:'Hub' },
+    { id:'talent', nombre:'Talent' },
+  ]},
+  { grupo: 'KOSTHER Audio & Visual', apps: [
+    { id:'soundlab', nombre:'Soundlab' },
+    { id:'pixlab',   nombre:'Pixlab' },
+  ]},
+];
+const RUBROS = ['Bebidas','Abarrotes','Snacks','Limpieza','Lacteos','Frutas y Verduras','Carnes y Embutidos','Panaderia','Otros'];
+
+let state = {
+  empresas: [],
+  anuncios: [],
+  tabActual: 'empresas',
+  editingEmpresaId: null,
+  editingProductoEmpresaId: null,
+  editingProductoId: null,
+  editingAdId: null,
+};
+
+/* ---------- Utilidades ---------- */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const uid = () => 'id-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+const slugify = (s) => (s||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+const download = (filename, obj) => {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+};
+const escapeHtml = (s) => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast = (msg) => {
+  $('#toastMsg').textContent = msg;
+  $('#toast').classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 2200);
+};
+const confirmar = (titulo, mensaje, onOk) => {
+  $('#confirmTitulo').textContent = titulo;
+  $('#confirmMensaje').textContent = mensaje;
+  $('#modalConfirm').classList.remove('hidden');
+  const ok = () => { $('#modalConfirm').classList.add('hidden'); onOk(); cleanup(); };
+  const cancel = () => { $('#modalConfirm').classList.add('hidden'); cleanup(); };
+  const cleanup = () => { $('#btnConfirmOk').removeEventListener('click', ok); $('#btnConfirmCancel').removeEventListener('click', cancel); };
+  $('#btnConfirmOk').addEventListener('click', ok);
+  $('#btnConfirmCancel').addEventListener('click', cancel);
+};
+const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
+
+/* ---------- Persistencia ---------- */
+async function persist() {
+  await store.setItem('empresas', state.empresas);
+  await store.setItem('anuncios', state.anuncios);
+}
+async function load() {
+  const e = await store.getItem('empresas');
+  const a = await store.getItem('anuncios');
+  if (Array.isArray(e)) state.empresas = e;
+  if (Array.isArray(a)) state.anuncios = a;
+}
+
+/* =========================================================
+   PESTAÑA EMPRESAS
+   ========================================================= */
+function empresaVacia() {
+  return {
+    id: uid(),
+    nombre: '', slug: '', rubro: 'Bebidas', eslogan: '', descripcion: '', zona: '',
+    colores: { primario:'#1E40AF', acento:'#FACC15', neutral:'#F8FAFC', oscuro:'#0F172A' },
+    logo: '',
+    contacto: { whatsapp:'', instagram:'', tiktok:'', facebook:'', web:'' },
+    productos: [],
+    activa: true,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+function resetFormEmpresa() {
+  state.editingEmpresaId = null;
+  $('#formEmpresa').reset();
+  $('#empresaId').value = '';
+  $('#empColorPrimario').value = '#1E40AF'; $('#empColorPrimarioHex').value = '#1E40AF';
+  $('#empColorAcento').value  = '#FACC15';  $('#empColorAcentoHex').value  = '#FACC15';
+  $('#empColorNeutral').value= '#F8FAFC';  $('#empColorNeutralHex').value= '#F8FAFC';
+  $('#empColorOscuro').value  = '#0F172A';  $('#empColorOscuroHex').value  = '#0F172A';
+  $('#empActiva').checked = true;
+  $('#formEmpresaTitulo').innerHTML = '<i data-lucide="plus-circle" style="color:var(--provex-primario)"></i> Nueva empresa en provex';
+  $('#btnCancelarEdicion').classList.add('hidden');
+  refreshIcons();
+}
+
+function llenarFormEmpresa(emp) {
+  state.editingEmpresaId = emp.id;
+  $('#empresaId').value = emp.id;
+  $('#empNombre').value = emp.nombre || '';
+  $('#empSlug').value = emp.slug || '';
+  $('#empRubro').value = emp.rubro || 'Bebidas';
+  $('#empZona').value = emp.zona || '';
+  $('#empEslogan').value = emp.eslogan || '';
+  $('#empDescripcion').value = emp.descripcion || '';
+  const c = emp.colores || {};
+  $('#empColorPrimario').value = c.primario || '#1E40AF'; $('#empColorPrimarioHex').value = c.primario || '#1E40AF';
+  $('#empColorAcento').value  = c.acento  || '#FACC15';    $('#empColorAcentoHex').value  = c.acento  || '#FACC15';
+  $('#empColorNeutral').value= c.neutral || '#F8FAFC';    $('#empColorNeutralHex').value= c.neutral || '#F8FAFC';
+  $('#empColorOscuro').value  = c.oscuro  || '#0F172A';    $('#empColorOscuroHex').value  = c.oscuro  || '#0F172A';
+  $('#empLogo').value = emp.logo || '';
+  const ct = emp.contacto || {};
+  $('#empWhatsapp').value  = ct.whatsapp || '';
+  $('#empInstagram').value = ct.instagram || '';
+  $('#empTiktok').value    = ct.tiktok || '';
+  $('#empFacebook').value  = ct.facebook || '';
+  $('#empWeb').value       = ct.web || '';
+  $('#empActiva').checked = !!emp.activa;
+  $('#formEmpresaTitulo').innerHTML = '<i data-lucide="edit-3" style="color:var(--provex-primario)"></i> Editar empresa: ' + escapeHtml(emp.nombre||'');
+  $('#btnCancelarEdicion').classList.remove('hidden');
+  refreshIcons();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function leerFormEmpresa() {
+  return {
+    id: $('#empresaId').value || uid(),
+    nombre: $('#empNombre').value.trim(),
+    slug: $('#empSlug').value.trim() || slugify($('#empNombre').value),
+    rubro: $('#empRubro').value,
+    eslogan: $('#empEslogan').value.trim(),
+    descripcion: $('#empDescripcion').value.trim(),
+    zona: $('#empZona').value.trim(),
+    colores: {
+      primario: $('#empColorPrimarioHex').value,
+      acento:  $('#empColorAcentoHex').value,
+      neutral: $('#empColorNeutralHex').value,
+      oscuro:  $('#empColorOscuroHex').value,
+    },
+    logo: $('#empLogo').value.trim(),
+    contacto: {
+      whatsapp:  $('#empWhatsapp').value.trim(),
+      instagram: $('#empInstagram').value.trim(),
+      tiktok:    $('#empTiktok').value.trim(),
+      facebook:  $('#empFacebook').value.trim(),
+      web:       $('#empWeb').value.trim(),
+    },
+    activa: $('#empActiva').checked,
+  };
+}
+
+function guardarEmpresa(e) {
+  e.preventDefault();
+  const data = leerFormEmpresa();
+  if (!data.nombre) { toast('El nombre es obligatorio'); return; }
+  // Validar slug unico
+  const duplicado = state.empresas.find(x => x.slug === data.slug && x.id !== data.id);
+  if (duplicado) { toast('El slug ya esta en uso por otra empresa'); return; }
+  if (state.editingEmpresaId) {
+    const idx = state.empresas.findIndex(x => x.id === state.editingEmpresaId);
+    if (idx >= 0) state.empresas[idx] = { ...state.empresas[idx], ...data, updatedAt: new Date().toISOString() };
+    toast('Empresa actualizada');
+  } else {
+    data.createdAt = new Date().toISOString();
+    state.empresas.push({ ...empresaVacia(), ...data, id: data.id });
+    toast('Empresa creada');
+  }
+  persist();
+  resetFormEmpresa();
+  renderEmpresas();
+  refreshAdFormEmpresaOptions();
+}
+
+function duplicarEmpresa(id) {
+  const emp = state.empresas.find(x => x.id === id);
+  if (!emp) return;
+  const copia = JSON.parse(JSON.stringify(emp));
+  copia.id = uid();
+  copia.slug = emp.slug + '-copia';
+  copia.nombre = emp.nombre + ' (copia)';
+  copia.productos = (emp.productos||[]).map(p => ({ ...p, id: uid() }));
+  copia.createdAt = new Date().toISOString();
+  state.empresas.push(copia);
+  persist(); renderEmpresas(); refreshAdFormEmpresaOptions();
+  toast('Empresa duplicada');
+}
+
+function toggleEmpresaActiva(id) {
+  const emp = state.empresas.find(x => x.id === id);
+  if (!emp) return;
+  emp.activa = !emp.activa;
+  emp.updatedAt = new Date().toISOString();
+  persist(); renderEmpresas();
+  toast(emp.activa ? 'Empresa activada' : 'Empresa pausada');
+}
+
+function eliminarEmpresa(id) {
+  const emp = state.empresas.find(x => x.id === id);
+  if (!emp) return;
+  confirmar(
+    'Eliminar empresa',
+    `Eliminar "${emp.nombre}" y todos sus ${emp.productos?.length||0} productos. Esta accion no se puede deshacer.`,
+    () => {
+      state.empresas = state.empresas.filter(x => x.id !== id);
+      state.anuncios = state.anuncios.filter(a => a.empresaId !== id);
+      persist(); renderEmpresas(); renderAds(); refreshAdFormEmpresaOptions();
+      toast('Empresa eliminada');
+    }
+  );
+}
+
+function editarEmpresa(id) {
+  const emp = state.empresas.find(x => x.id === id);
+  if (!emp) return;
+  llenarFormEmpresa(emp);
+}
+
+function renderEmpresas() {
+  const cont = $('#listaEmpresas');
+  const empty = $('#emptyEmpresas');
+  const q = ($('#searchEmpresas').value || '').toLowerCase();
+  const list = state.empresas.filter(e =>
+    !q || (e.nombre||'').toLowerCase().includes(q) || (e.rubro||'').toLowerCase().includes(q) || (e.slug||'').toLowerCase().includes(q)
+  );
+  $('#countEmpresas').textContent = state.empresas.length;
+  if (!list.length) { cont.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  cont.innerHTML = list.map(emp => {
+    const c = emp.colores || {};
+    const nProd = (emp.productos||[]).length;
+    const estadoChip = emp.activa
+      ? '<span class="chip" style="background:#dcfce7;color:#16a34a"><i data-lucide="check"></i> Activa</span>'
+      : '<span class="chip" style="background:#fee2e2;color:#dc2626"><i data-lucide="pause"></i> Pausada</span>';
+    return `
+      <article class="card p-4 border-l-4" style="border-left-color:${c.primario||'#1E40AF'}">
+        <div class="flex items-start gap-3 flex-wrap">
+          <div class="w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style="background:${c.primario||'#1E40AF'}">
+            ${emp.logo ? `<img src="${escapeHtml(emp.logo)}" class="w-full h-full object-cover" alt="${escapeHtml(emp.nombre)}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'${escapeHtml((emp.nombre||'P').charAt(0))}',style:'color:#fff;font-weight:800;font-size:1.4rem;width:100%;height:100%;display:flex;align-items:center;justify-content:center'}))" />` :
+              `<div style="color:#fff;font-weight:800;font-size:1.4rem">${escapeHtml((emp.nombre||'P').charAt(0))}</div>`}
+          </div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <h3 class="font-extrabold text-lg">${escapeHtml(emp.nombre||'Sin nombre')}</h3>
+              <span class="chip" style="background:#e0e7ff;color:var(--provex-primario)">${escapeHtml(emp.rubro||'Otros')}</span>
+              ${estadoChip}
+            </div>
+            <p class="text-sm text-slate-500">${escapeHtml(emp.eslogan||'')}</p>
+            <div class="flex items-center gap-3 mt-2 text-xs text-slate-500 flex-wrap">
+              <span><i data-lucide="hash"></i> ${escapeHtml(emp.slug||'')}</span>
+              <span><i data-lucide="map-pin"></i> ${escapeHtml(emp.zona||'Sin zona')}</span>
+              <span><i data-lucide="package"></i> ${nProd} producto(s)</span>
+              ${emp.contacto?.whatsapp ? `<span><i data-lucide="message-circle"></i> WhatsApp</span>` : ''}
+              ${emp.contacto?.instagram ? `<span><i data-lucide="instagram"></i> IG</span>` : ''}
+              ${emp.contacto?.facebook ? `<span><i data-lucide="facebook"></i> FB</span>` : ''}
+              ${emp.contacto?.tiktok ? `<span><i data-lucide="music"></i> TikTok</span>` : ''}
+              ${emp.contacto?.web ? `<span><i data-lucide="globe"></i> Web</span>` : ''}
+            </div>
+            <div class="flex items-center gap-1 mt-2">
+              <span class="chip" style="background:${c.primario||'#1E40AF'};color:#fff">primario</span>
+              <span class="chip" style="background:${c.acento||'#FACC15'};color:${c.oscuro||'#0F172A'}">acento</span>
+              <span class="chip" style="background:${c.neutral||'#F8FAFC'};color:${c.oscuro||'#0F172A'};border:1px solid #e2e8f0">neutral</span>
+              <span class="chip" style="background:${c.oscuro||'#0F172A'};color:#fff">oscuro</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1 flex-shrink-0">
+            <button onclick="editarEmpresa('${emp.id}')" class="btn-ghost px-3 py-1.5 rounded-md text-xs flex items-center gap-1"><i data-lucide="edit-3"></i> Editar</button>
+            <button onclick="abrirProductos('${emp.id}')" class="btn-primary px-3 py-1.5 rounded-md text-xs flex items-center gap-1"><i data-lucide="package"></i> Productos (${nProd})</button>
+            <button onclick="duplicarEmpresa('${emp.id}')" class="px-3 py-1.5 rounded-md text-xs flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold"><i data-lucide="copy"></i> Duplicar</button>
+            <button onclick="toggleEmpresaActiva('${emp.id}')" class="px-3 py-1.5 rounded-md text-xs flex items-center gap-1 ${emp.activa?'bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold':'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-semibold'}"><i data-lucide="${emp.activa?'pause':'play'}"></i> ${emp.activa?'Pausar':'Activar'}</button>
+            <button onclick="eliminarEmpresa('${emp.id}')" class="px-3 py-1.5 rounded-md text-xs flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold"><i data-lucide="trash-2"></i> Eliminar</button>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+  refreshIcons();
+}
+
+/* =========================================================
+   GESTOR DE PRODUCTOS (modal)
+   ========================================================= */
+function abrirProductos(empresaId) {
+  const emp = state.empresas.find(x => x.id === empresaId);
+  if (!emp) return;
+  state.editingProductoEmpresaId = empresaId;
+  state.editingProductoId = null;
+  $('#modalProductosEmpresa').textContent = emp.nombre + ' · ' + (emp.productos?.length||0) + ' producto(s)';
+  resetFormProducto();
+  renderProductos();
+  $('#modalProductos').classList.remove('hidden');
+  refreshIcons();
+}
+function cerrarProductos() {
+  $('#modalProductos').classList.add('hidden');
+  state.editingProductoEmpresaId = null;
+  state.editingProductoId = null;
+}
+function resetFormProducto() {
+  state.editingProductoId = null;
+  $('#formProducto').reset();
+  $('#productoId').value = '';
+  $('#prodDisponible').checked = true;
+  $('#productoFormTitulo').textContent = 'Agregar producto';
+  refreshIcons();
+}
+function leerFormProducto() {
+  return {
+    id: $('#productoId').value || uid(),
+    nombre: $('#prodNombre').value.trim(),
+    presentacion: $('#prodPresentacion').value.trim(),
+    precio: parseFloat($('#prodPrecio').value) || 0,
+    precioMayorista: parseFloat($('#prodPrecioMayorista').value) || 0,
+    foto: $('#prodFoto').value.trim(),
+    descripcion: $('#prodDescripcion').value.trim(),
+    disponible: $('#prodDisponible').checked,
+  };
+}
+function guardarProducto(e) {
+  e.preventDefault();
+  const emp = state.empresas.find(x => x.id === state.editingProductoEmpresaId);
+  if (!emp) return;
+  const data = leerFormProducto();
+  if (!data.nombre) { toast('Nombre del producto obligatorio'); return; }
+  emp.productos = emp.productos || [];
+  if (state.editingProductoId) {
+    const idx = emp.productos.findIndex(p => p.id === state.editingProductoId);
+    if (idx >= 0) emp.productos[idx] = { ...emp.productos[idx], ...data };
+  } else {
+    emp.productos.push(data);
+  }
+  persist();
+  $('#modalProductosEmpresa').textContent = emp.nombre + ' · ' + emp.productos.length + ' producto(s)';
+  resetFormProducto();
+  renderProductos();
+  renderEmpresas();
+  toast('Producto guardado');
+}
+function editarProducto(id) {
+  const emp = state.empresas.find(x => x.id === state.editingProductoEmpresaId);
+  if (!emp) return;
+  const p = emp.productos.find(x => x.id === id);
+  if (!p) return;
+  state.editingProductoId = id;
+  $('#productoId').value = p.id;
+  $('#prodNombre').value = p.nombre || '';
+  $('#prodPresentacion').value = p.presentacion || '';
+  $('#prodPrecio').value = p.precio || '';
+  $('#prodPrecioMayorista').value = p.precioMayorista || '';
+  $('#prodFoto').value = p.foto || '';
+  $('#prodDescripcion').value = p.descripcion || '';
+  $('#prodDisponible').checked = p.disponible !== false;
+  $('#productoFormTitulo').textContent = 'Editar producto: ' + (p.nombre||'');
+  refreshIcons();
+}
+function eliminarProducto(id) {
+  const emp = state.empresas.find(x => x.id === state.editingProductoEmpresaId);
+  if (!emp) return;
+  const p = emp.productos.find(x => x.id === id);
+  if (!p) return;
+  confirmar('Eliminar producto', `Eliminar "${p.nombre}". Esta accion no se puede deshacer.`, () => {
+    emp.productos = emp.productos.filter(x => x.id !== id);
+    persist(); renderProductos(); renderEmpresas();
+    $('#modalProductosEmpresa').textContent = emp.nombre + ' · ' + emp.productos.length + ' producto(s)';
+    toast('Producto eliminado');
+  });
+}
+function renderProductos() {
+  const emp = state.empresas.find(x => x.id === state.editingProductoEmpresaId);
+  if (!emp) return;
+  const cont = $('#listaProductos');
+  const empty = $('#emptyProductos');
+  $('#countProductos').textContent = (emp.productos||[]).length;
+  if (!emp.productos || !emp.productos.length) { cont.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  cont.innerHTML = emp.productos.map(p => `
+    <div class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50">
+      <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 flex-shrink-0">
+        ${p.foto ? `<img src="${escapeHtml(p.foto)}" class="w-full h-full object-cover" onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:'<i data-lucide=\\'image-off\\' style=\\'width:18px;height:18px;color:#94a3b8\\'></i>',style:'display:flex;align-items:center;justify-content:center;width:100%;height:100%'})); setTimeout(()=>lucide.createIcons(),10)" />` :
+          '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%"><i data-lucide="image" style="color:#94a3b8;width:18px;height:18px"></i></div>'}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h4 class="font-bold text-sm truncate">${escapeHtml(p.nombre||'')}</h4>
+          ${p.disponible===false
+            ? '<span class="chip" style="background:#fee2e2;color:#dc2626"><i data-lucide="x-circle"></i> Agotado</span>'
+            : '<span class="chip" style="background:#dcfce7;color:#16a34a"><i data-lucide="check"></i> Disponible</span>'}
+        </div>
+        <p class="text-xs text-slate-500 truncate">${escapeHtml(p.presentacion||'')}${p.descripcion? ' · '+escapeHtml(p.descripcion):''}</p>
+        <p class="text-xs mt-0.5"><span class="font-bold" style="color:var(--provex-primario)">S/ ${p.precio.toFixed(2)}</span>
+          ${p.precioMayorista ? `<span class="ml-2 text-slate-400 line-through text-[11px]">Mayorista S/ ${p.precioMayorista.toFixed(2)}</span>` : ''}</p>
+      </div>
+      <div class="flex flex-col gap-1">
+        <button onclick="editarProducto('${p.id}')" class="px-2 py-1 rounded-md text-xs bg-slate-100 hover:bg-slate-200 flex items-center gap-1"><i data-lucide="edit-3"></i> Editar</button>
+        <button onclick="eliminarProducto('${p.id}')" class="px-2 py-1 rounded-md text-xs bg-red-100 hover:bg-red-200 text-red-700 flex items-center gap-1"><i data-lucide="trash-2"></i> Borrar</button>
+      </div>
+    </div>`).join('');
+  refreshIcons();
+}
+
+/* =========================================================
+   PESTAÑA ANUNCIOS
+   ========================================================= */
+function renderAppsCheckboxes() {
+  const cont = $('#appsGrid');
+  cont.innerHTML = APPS_KOSTHER.map(grupo => `
+    <div class="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
+      <div class="font-bold text-xs uppercase tracking-wider text-provex-primario mb-1.5">${grupo.grupo}</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+        ${grupo.apps.map(a => `
+          <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer hover:bg-white p-1.5 rounded">
+            <input type="checkbox" class="app-checkbox w-3.5 h-3.5 accent-provex-primario" value="${a.id}" data-app="${a.id}" />
+            <span>${a.nombre}</span>
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
+  // Listener "todas las apps"
+  $('#chkAllApps').addEventListener('change', (e) => {
+    $$('.app-checkbox').forEach(cb => { cb.checked = e.target.checked; cb.disabled = e.target.checked; });
+    updateAppsSelectedCount();
+    updateLivePreview();
+  });
+  $$('.app-checkbox').forEach(cb => cb.addEventListener('change', () => {
+    updateAppsSelectedCount();
+    updateLivePreview();
+  }));
+}
+function refreshAdFormEmpresaOptions() {
+  const sel = $('#adEmpresaId');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">-- Selecciona empresa --</option>' + state.empresas.map(e => `<option value="${e.id}">${escapeHtml(e.nombre||'')} (${escapeHtml(e.rubro||'')})</option>`).join('');
+  if (prev && state.empresas.find(x=>x.id===prev)) sel.value = prev;
+  // Filtro por app
+  const filterApp = $('#filterAdApp');
+  const prevApp = filterApp.value;
+  filterApp.innerHTML = '<option value="">Todas las apps</option>' + APPS_KOSTHER.flatMap(g => g.apps).map(a => `<option value="${a.id}">${a.nombre} (${a.id})</option>`).join('');
+  if (prevApp) filterApp.value = prevApp;
+}
+function refreshProductosAd() {
+  const empId = $('#adEmpresaId').value;
+  const sel = $('#adProductoId');
+  if (!empId) { sel.innerHTML = '<option value="">-- Sin producto especifico --</option>'; return; }
+  const emp = state.empresas.find(x => x.id === empId);
+  if (!emp) return;
+  sel.innerHTML = '<option value="">-- Sin producto especifico --</option>' + (emp.productos||[]).map(p => `<option value="${p.id}">${escapeHtml(p.nombre||'')} ${p.presentacion?'· '+escapeHtml(p.presentacion):''}</option>`).join('');
+}
+function updateAppsSelectedCount() {
+  const all = $('#chkAllApps').checked;
+  const n = all ? APPS_KOSTHER.flatMap(g => g.apps).length : $$('.app-checkbox:checked').length;
+  $('#appsSelectedCount').textContent = (all? 'Todas ('+n+')' : n + ' app(s)');
+}
+function adColorsFromForm() {
+  const origen = document.querySelector('input[name="adOrigen"]:checked').value;
+  if (origen === 'empresa') {
+    const emp = state.empresas.find(x => x.id === $('#adEmpresaId').value);
+    if (emp) return { ...emp.colores, nombre: emp.nombre, contacto: emp.contacto };
+  }
+  return {
+    primario: $('#adColorPrimario').value,
+    acento:   $('#adColorAcento').value,
+    neutral:  $('#adColorNeutral').value,
+    oscuro:   $('#adColorOscuro').value,
+    nombre: '', contacto: {}
+  };
+}
+function updateLivePreview() {
+  const tipo = document.querySelector('input[name="adTipo"]:checked').value;
+  const c = adColorsFromForm();
+  const titulo = $('#adTitulo').value || 'Titulo del anuncio';
+  const texto  = $('#adTexto').value  || 'Texto persuasivo corto del anuncio.';
+  const cta    = $('#adCta').value   || 'Pedir ahora';
+  const imagen = $('#adImagen').value;
+  const cont = $('#livePreview');
+  const bg = c.primario || '#1E40AF';
+  const fg = '#fff';
+  const acc = c.acento || '#FACC15';
+  const osc = c.oscuro || '#0F172A';
+  cont.style.setProperty('--preview-bg', bg);
+  cont.style.setProperty('--preview-fg', fg);
+  let html = '';
+  if (tipo === 'banner-superior') {
+    html = `
+      <div class="ad-preview-banner w-full max-w-2xl" style="--preview-bg:${bg};--preview-fg:${fg}">
+        <div class="flex items-center gap-2 min-w-0">
+          ${imagen?`<img src="${escapeHtml(imagen)}" class="w-10 h-10 rounded object-cover flex-shrink-0" onerror="this.style.display='none'">`:''}
+          <div class="min-w-0">
+            <div class="font-extrabold text-sm truncate">${escapeHtml(titulo)}</div>
+            <div class="text-xs opacity-90 truncate">${escapeHtml(texto)}</div>
+          </div>
+        </div>
+        <button class="px-3 py-1.5 rounded-md font-bold text-xs flex-shrink-0" style="background:${acc};color:${osc}">${escapeHtml(cta)}</button>
+      </div>`;
+  } else if (tipo === 'tarjeta-nativa') {
+    html = `
+      <div class="ad-preview-card w-full max-w-md" style="--preview-bg:${bg}">
+        ${imagen?`<img src="${escapeHtml(imagen)}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0" onerror="this.style.display='none'">`: `<div class="w-16 h-16 rounded-lg flex-shrink-0 flex items-center justify-center" style="background:${bg}"><i data-lucide="image" style="color:#fff;width:20px;height:20px"></i></div>`}
+        <div class="flex-1 min-w-0">
+          <div class="font-extrabold text-sm truncate">${escapeHtml(titulo)}</div>
+          <div class="text-xs text-slate-500 truncate">${escapeHtml(texto)}</div>
+        </div>
+        <button class="px-3 py-1.5 rounded-md font-bold text-xs flex-shrink-0" style="background:${bg};color:${fg}">${escapeHtml(cta)}</button>
+      </div>`;
+  } else if (tipo === 'widget-lateral') {
+    html = `
+      <div class="ad-preview-widget" style="border-top:4px solid ${bg}">
+        ${imagen?`<img src="${escapeHtml(imagen)}" class="w-full h-24 rounded object-cover" onerror="this.style.display='none'">`: `<div class="w-full h-24 rounded flex items-center justify-center" style="background:${bg}"><i data-lucide="image" style="color:#fff;width:24px;height:24px"></i></div>`}
+        <div class="font-extrabold text-sm">${escapeHtml(titulo)}</div>
+        <div class="text-xs text-slate-500">${escapeHtml(texto)}</div>
+        <button class="w-full px-3 py-1.5 rounded-md font-bold text-xs" style="background:${bg};color:${fg}">${escapeHtml(cta)}</button>
+      </div>`;
+  } else if (tipo === 'modal-pausa') {
+    html = `
+      <div class="ad-preview-modal" style="border-top:6px solid ${bg}">
+        <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-2" style="background:${bg}">
+          <i data-lucide="coffee" style="color:${acc};width:24px;height:24px"></i>
+        </div>
+        <div class="font-extrabold text-base mb-1">${escapeHtml(titulo)}</div>
+        <div class="text-sm text-slate-500 mb-3">${escapeHtml(texto)}</div>
+        ${imagen?`<img src="${escapeHtml(imagen)}" class="w-full h-32 rounded-lg object-cover mb-3" onerror="this.style.display='none'">`:''}
+        <button class="w-full px-4 py-2.5 rounded-lg font-bold text-sm" style="background:${acc};color:${osc}">${escapeHtml(cta)}</button>
+        <button class="w-full mt-1 px-4 py-2 rounded-lg text-xs text-slate-500">Cerrar</button>
+      </div>`;
+  } else if (tipo === 'toast-flotante') {
+    html = `
+      <div class="ad-preview-toast w-full max-w-md" style="--preview-bg:${osc};--preview-fg:${fg};background:${osc};color:${fg}">
+        <div class="flex items-center gap-2 min-w-0">
+          <i data-lucide="bell" style="color:${acc};width:18px;height:18px"></i>
+          <div class="min-w-0">
+            <div class="font-bold text-xs truncate">${escapeHtml(titulo)}</div>
+            <div class="text-[11px] opacity-90 truncate">${escapeHtml(texto)}</div>
+          </div>
+        </div>
+        <button class="px-2.5 py-1 rounded-md font-bold text-xs flex-shrink-0" style="background:${acc};color:${osc}">${escapeHtml(cta)}</button>
+      </div>`;
+  }
+  cont.innerHTML = html;
+  refreshIcons();
+}
+function resetFormAd() {
+  state.editingAdId = null;
+  $('#formAd').reset();
+  $('#adId').value = '';
+  $('#chkAllApps').checked = false;
+  $$('.app-checkbox').forEach(cb => { cb.checked = false; cb.disabled = false; });
+  $('#adColorPrimario').value = '#1E40AF';
+  $('#adColorAcento').value = '#FACC15';
+  $('#adColorNeutral').value = '#F8FAFC';
+  $('#adColorOscuro').value = '#0F172A';
+  document.querySelector('input[name="adTipo"][value="banner-superior"]').checked = true;
+  document.querySelector('input[name="adOrigen"][value="empresa"]').checked = true;
+  $('#bloqueEmpresa').classList.remove('hidden');
+  $('#bloqueManual').classList.add('hidden');
+  $('#formAdTitulo').innerHTML = '<i data-lucide="plus-circle" style="color:var(--provex-primario)"></i> Nuevo anuncio para apps KOSTHER';
+  $('#btnCancelarAd').classList.add('hidden');
+  updateAppsSelectedCount();
+  updateLivePreview();
+  refreshIcons();
+}
+function leerFormAd() {
+  const allApps = $('#chkAllApps').checked;
+  const apps = allApps ? ['*'] : Array.from($$('.app-checkbox:checked')).map(cb => cb.value);
+  const origen = document.querySelector('input[name="adOrigen"]:checked').value;
+  const tipo = document.querySelector('input[name="adTipo"]:checked').value;
+  const ad = {
+    id: $('#adId').value || uid(),
+    apps,
+    tipo,
+    origen,
+    empresaId: origen === 'empresa' ? ($('#adEmpresaId').value || null) : null,
+    productoId: origen === 'empresa' ? ($('#adProductoId').value || null) : null,
+    titulo: $('#adTitulo').value.trim(),
+    texto: $('#adTexto').value.trim(),
+    cta: $('#adCta').value.trim(),
+    url: $('#adUrl').value.trim(),
+    imagen: $('#adImagen').value.trim(),
+    prioridad: $('#adPrioridad').value,
+    activo: $('#adActivo').checked,
+    createdAt: new Date().toISOString(),
+  };
+  if (origen === 'manual') {
+    ad.coloresManuales = {
+      primario: $('#adColorPrimario').value,
+      acento:   $('#adColorAcento').value,
+      neutral:  $('#adColorNeutral').value,
+      oscuro:   $('#adColorOscuro').value,
+    };
+  }
+  return ad;
+}
+function guardarAd(e) {
+  e.preventDefault();
+  const data = leerFormAd();
+  if (!data.titulo) { toast('El titulo del anuncio es obligatorio'); return; }
+  if (!data.apps.length) { toast('Selecciona al menos una app destino'); return; }
+  if (state.editingAdId) {
+    const idx = state.anuncios.findIndex(x => x.id === state.editingAdId);
+    if (idx >= 0) state.anuncios[idx] = { ...state.anuncios[idx], ...data, updatedAt: new Date().toISOString() };
+    toast('Anuncio actualizado');
+  } else {
+    state.anuncios.push(data);
+    toast('Anuncio creado');
+  }
+  persist(); renderAds(); resetFormAd();
+}
+function editarAd(id) {
+  const ad = state.anuncios.find(x => x.id === id);
+  if (!ad) return;
+  state.editingAdId = id;
+  $('#adId').value = ad.id;
+  // apps
+  if (ad.apps && ad.apps.includes('*')) {
+    $('#chkAllApps').checked = true;
+    $$('.app-checkbox').forEach(cb => { cb.checked = true; cb.disabled = true; });
+  } else {
+    $('#chkAllApps').checked = false;
+    $$('.app-checkbox').forEach(cb => { cb.checked = (ad.apps||[]).includes(cb.value); cb.disabled = false; });
+  }
+  updateAppsSelectedCount();
+  // tipo
+  document.querySelector(`input[name="adTipo"][value="${ad.tipo}"]`).checked = true;
+  // origen
+  if (ad.origen === 'manual') {
+    document.querySelector('input[name="adOrigen"][value="manual"]').checked = true;
+    $('#bloqueManual').classList.remove('hidden');
+    $('#bloqueEmpresa').classList.add('hidden');
+    if (ad.coloresManuales) {
+      $('#adColorPrimario').value = ad.coloresManuales.primario;
+      $('#adColorAcento').value = ad.coloresManuales.acento;
+      $('#adColorNeutral').value = ad.coloresManuales.neutral;
+      $('#adColorOscuro').value = ad.coloresManuales.oscuro;
+    }
+  } else {
+    document.querySelector('input[name="adOrigen"][value="empresa"]').checked = true;
+    $('#bloqueEmpresa').classList.remove('hidden');
+    $('#bloqueManual').classList.add('hidden');
+    $('#adEmpresaId').value = ad.empresaId || '';
+    refreshProductosAd();
+    $('#adProductoId').value = ad.productoId || '';
+  }
+  $('#adTitulo').value = ad.titulo || '';
+  $('#adTexto').value = ad.texto || '';
+  $('#adCta').value = ad.cta || '';
+  $('#adUrl').value = ad.url || '';
+  $('#adImagen').value = ad.imagen || '';
+  $('#adPrioridad').value = ad.prioridad || 'media';
+  $('#adActivo').checked = ad.activo !== false;
+  $('#formAdTitulo').innerHTML = '<i data-lucide="edit-3" style="color:var(--provex-primario)"></i> Editar anuncio: ' + escapeHtml(ad.titulo||'');
+  $('#btnCancelarAd').classList.remove('hidden');
+  updateLivePreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  refreshIcons();
+}
+function eliminarAd(id) {
+  const ad = state.anuncios.find(x => x.id === id);
+  if (!ad) return;
+  confirmar('Eliminar anuncio', `Eliminar el anuncio "${ad.titulo}".`, () => {
+    state.anuncios = state.anuncios.filter(x => x.id !== id);
+    persist(); renderAds();
+    toast('Anuncio eliminado');
+  });
+}
+function toggleAdActivo(id) {
+  const ad = state.anuncios.find(x => x.id === id);
+  if (!ad) return;
+  ad.activo = ad.activo === false ? true : false;
+  persist(); renderAds();
+  toast(ad.activo ? 'Anuncio activado' : 'Anuncio desactivado');
+}
+function renderAds() {
+  const cont = $('#listaAds');
+  const empty = $('#emptyAds');
+  const fa = $('#filterAdApp').value;
+  const ft = $('#filterAdTipo').value;
+  const list = state.anuncios.filter(a => {
+    if (ft && a.tipo !== ft) return false;
+    if (fa && !(a.apps||[]).includes('*') && !(a.apps||[]).includes(fa)) return false;
+    return true;
+  });
+  $('#countAds').textContent = state.anuncios.length;
+  if (!list.length) { cont.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  cont.innerHTML = list.map(ad => {
+    const emp = ad.empresaId ? state.empresas.find(x => x.id === ad.empresaId) : null;
+    const c = ad.origen === 'manual' ? (ad.coloresManuales||{}) : (emp?.colores||{});
+    const tipoLabels = {
+      'banner-superior':'Banner superior',
+      'tarjeta-nativa':'Tarjeta nativa',
+      'widget-lateral':'Widget lateral',
+      'modal-pausa':'Modal pausa',
+      'toast-flotante':'Toast flotante'
+    };
+    const prioChip = ad.prioridad==='alta'
+      ? '<span class="chip" style="background:#fee2e2;color:#dc2626">Alta</span>'
+      : ad.prioridad==='baja'
+      ? '<span class="chip" style="background:#e2e8f0;color:#475569">Baja</span>'
+      : '<span class="chip" style="background:#e0e7ff;color:var(--provex-primario)">Media</span>';
+    const estadoChip = ad.activo !== false
+      ? '<span class="chip" style="background:#dcfce7;color:#16a34a"><i data-lucide="check"></i> Activo</span>'
+      : '<span class="chip" style="background:#fee2e2;color:#dc2626"><i data-lucide="pause"></i> Inactivo</span>';
+    const appsLabel = (ad.apps||[]).includes('*')
+      ? '<span class="chip" style="background:'+c.primario+';color:#fff"><i data-lucide="globe"></i> Todas las apps</span>'
+      : (ad.apps||[]).map(a => `<span class="chip" style="background:#f1f5f9;color:#334155">${escapeHtml(a)}</span>`).join('');
+    return `
+      <article class="card p-4 border-l-4" style="border-left-color:${c.primario||'#1E40AF'}">
+        <div class="flex items-start gap-3 flex-wrap">
+          <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0" style="background:${c.primario||'#1E40AF'}">
+            ${ad.imagen ? `<img src="${escapeHtml(ad.imagen)}" class="w-full h-full object-cover" onerror="this.replaceWith(Object.assign(document.createElement('div'),{innerHTML:'<i data-lucide=\\'megaphone\\' style=\\'color:#fff;width:18px;height:18px\\'></i>',style:'display:flex;align-items:center;justify-content:center;width:100%;height:100%'}));setTimeout(()=>lucide.createIcons(),10)" />` :
+              `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%"><i data-lucide="megaphone" style="color:#fff;width:18px;height:18px"></i></div>`}
+          </div>
+          <div class="flex-1 min-w-[200px]">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <h3 class="font-extrabold">${escapeHtml(ad.titulo||'')}</h3>
+              ${prioChip}
+              ${estadoChip}
+              <span class="chip" style="background:${c.acento||'#FACC15'};color:${c.oscuro||'#0F172A'}">${escapeHtml(tipoLabels[ad.tipo]||ad.tipo)}</span>
+            </div>
+            <p class="text-sm text-slate-500">${escapeHtml(ad.texto||'')}</p>
+            <div class="flex items-center gap-1 mt-2 flex-wrap">${appsLabel}</div>
+            ${emp ? `<p class="text-xs text-slate-400 mt-1"><i data-lucide="link"></i> Vinculado a: <strong>${escapeHtml(emp.nombre)}</strong></p>` : ''}
+            ${ad.cta ? `<p class="text-xs mt-1">CTA: <strong style="color:var(--provex-primario)">${escapeHtml(ad.cta)}</strong></p>` : ''}
+            ${ad.url ? `<p class="text-xs text-slate-500 truncate"><i data-lucide="external-link"></i> ${escapeHtml(ad.url)}</p>` : ''}
+          </div>
+          <div class="flex flex-col gap-1 flex-shrink-0">
+            <button onclick="editarAd('${ad.id}')" class="btn-ghost px-3 py-1.5 rounded-md text-xs flex items-center gap-1"><i data-lucide="edit-3"></i> Editar</button>
+            <button onclick="toggleAdActivo('${ad.id}')" class="px-3 py-1.5 rounded-md text-xs flex items-center gap-1 ${ad.activo!==false?'bg-amber-100 hover:bg-amber-200 text-amber-800 font-semibold':'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-semibold'}"><i data-lucide="${ad.activo!==false?'pause':'play'}"></i> ${ad.activo!==false?'Desactivar':'Activar'}</button>
+            <button onclick="eliminarAd('${ad.id}')" class="px-3 py-1.5 rounded-md text-xs flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold"><i data-lucide="trash-2"></i> Eliminar</button>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+  refreshIcons();
+}
+
+/* =========================================================
+   IMPORT / EXPORT
+   ========================================================= */
+function exportarEmpresas() {
+  const data = {
+    meta: { generatedBy:'provex gestor', version:'1.0', generatedAt:new Date().toISOString(), count: state.empresas.length },
+    empresas: state.empresas,
+  };
+  download('provex-empresas.json', data);
+  toast('provex-empresas.json descargado (' + state.empresas.length + ' empresas)');
+}
+function exportarAds() {
+  // Indexado por app y por tipo
+  const porApp = {};
+  const porTipo = {};
+  APPS_KOSTHER.flatMap(g => g.apps).forEach(a => { porApp[a.id] = []; });
+  porApp['*'] = [];
+  state.anuncios.forEach(ad => {
+    (ad.apps||[]).forEach(appId => {
+      if (!porApp[appId]) porApp[appId] = [];
+      porApp[appId].push(ad);
+    });
+    if (!porTipo[ad.tipo]) porTipo[ad.tipo] = [];
+    porTipo[ad.tipo].push(ad);
+  });
+  const data = {
+    meta: { generatedBy:'provex gestor', version:'1.0', generatedAt:new Date().toISOString(), count: state.anuncios.length },
+    appsDisponibles: APPS_KOSTHER,
+    porApp,
+    porTipo,
+    anuncios: state.anuncios,
+  };
+  download('provex-ads.json', data);
+  toast('provex-ads.json descargado (' + state.anuncios.length + ' anuncios)');
+}
+function importarJSON(files) {
+  let pendientes = files.length;
+  let mensajes = [];
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const obj = JSON.parse(e.target.result);
+        if (obj.empresas && Array.isArray(obj.empresas)) {
+          state.empresas = obj.empresas;
+          mensajes.push('empresas: ' + obj.empresas.length);
+        } else if (obj.anuncios && Array.isArray(obj.anuncios)) {
+          state.anuncios = obj.anuncios;
+          mensajes.push('anuncios: ' + obj.anuncios.length);
+        } else if (Array.isArray(obj)) {
+          // tratar de detectar por contenido
+          if (obj[0]?.productos !== undefined || obj[0]?.colores !== undefined) {
+            state.empresas = obj; mensajes.push('empresas: ' + obj.length);
+          } else if (obj[0]?.tipo && obj[0]?.apps) {
+            state.anuncios = obj; mensajes.push('anuncios: ' + obj.length);
+          }
+        }
+      } catch (err) {
+        toast('Error al leer ' + f.name);
+      }
+      pendientes--;
+      if (pendientes === 0) {
+        persist(); renderEmpresas(); renderAds(); refreshAdFormEmpresaOptions();
+        toast('Importado: ' + mensajes.join(', '));
+      }
+    };
+    reader.readAsText(f);
+  });
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+function setTab(tab) {
+  state.tabActual = tab;
+  $$('.tab-btn').forEach(b => b.classList.remove('tab-active','border-provex-acento'));
+  $$('.tab-btn').forEach(b => b.classList.add('border-transparent','text-white/70'));
+  const btn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+  btn.classList.add('tab-active','border-provex-acento');
+  btn.classList.remove('border-transparent','text-white/70');
+  $('#tabEmpresas').classList.toggle('hidden', tab !== 'empresas');
+  $('#tabAnuncios').classList.toggle('hidden', tab !== 'anuncios');
+  if (tab === 'anuncios') updateLivePreview();
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function init() {
+  await load();
+  // Tabs
+  $$('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  // Color pickers sync
+  const colorPairs = [
+    ['#empColorPrimario','#empColorPrimarioHex'],
+    ['#empColorAcento','#empColorAcentoHex'],
+    ['#empColorNeutral','#empColorNeutralHex'],
+    ['#empColorOscuro','#empColorOscuroHex'],
+  ];
+  colorPairs.forEach(([picker, hex]) => {
+    $(picker).addEventListener('input', () => $(hex).value = $(picker).value);
+    $(hex).addEventListener('input', () => { if (/^#[0-9a-fA-F]{6}$/.test($(hex).value)) $(picker).value = $(hex).value; });
+  });
+  // Slug auto
+  $('#empNombre').addEventListener('input', () => {
+    if (!state.editingEmpresaId) $('#empSlug').value = slugify($('#empNombre').value);
+  });
+  // Form empresa
+  $('#formEmpresa').addEventListener('submit', guardarEmpresa);
+  $('#btnResetEmpresa').addEventListener('click', resetFormEmpresa);
+  $('#btnCancelarEdicion').addEventListener('click', resetFormEmpresa);
+  $('#searchEmpresas').addEventListener('input', renderEmpresas);
+  // Productos
+  $('#formProducto').addEventListener('submit', guardarProducto);
+  $('#btnResetProducto').addEventListener('click', resetFormProducto);
+  $('#btnCerrarProductos').addEventListener('click', cerrarProductos);
+  $('#modalProductos').addEventListener('click', (e) => { if (e.target.id === 'modalProductos') cerrarProductos(); });
+  // Form ad
+  $('#formAd').addEventListener('submit', guardarAd);
+  $('#btnResetAd').addEventListener('click', resetFormAd);
+  $('#btnCancelarAd').addEventListener('click', resetFormAd);
+  $('#filterAdApp').addEventListener('change', renderAds);
+  $('#filterAdTipo').addEventListener('change', renderAds);
+  $('#adEmpresaId').addEventListener('change', () => { refreshProductosAd(); updateLivePreview(); });
+  $('#adProductoId').addEventListener('change', updateLivePreview);
+  $$('input[name="adOrigen"]').forEach(r => r.addEventListener('change', () => {
+    const v = r.value;
+    // Solo reaccionar al que se selecciono
+    const selected = document.querySelector('input[name="adOrigen"]:checked').value;
+    $('#bloqueEmpresa').classList.toggle('hidden', selected !== 'empresa');
+    $('#bloqueManual').classList.toggle('hidden', selected !== 'manual');
+    updateLivePreview();
+  }));
+  $$('input[name="adTipo"]').forEach(r => r.addEventListener('change', updateLivePreview));
+  ['#adTitulo','#adTexto','#adCta','#adImagen'].forEach(sel => $(sel).addEventListener('input', updateLivePreview));
+  ['#adColorPrimario','#adColorAcento','#adColorNeutral','#adColorOscuro'].forEach(sel => $(sel).addEventListener('input', updateLivePreview));
+  // Import/Export globales
+  $('#btnImport').addEventListener('click', () => $('#importInput').click());
+  $('#importInput').addEventListener('change', (e) => { importarJSON(e.target.files); e.target.value=''; });
+  $('#btnExportEmpresas').addEventListener('click', exportarEmpresas);
+  $('#btnExportAds').addEventListener('click', exportarAds);
+  // Build UI
+  renderAppsCheckboxes();
+  refreshAdFormEmpresaOptions();
+  renderEmpresas();
+  renderAds();
+  resetFormEmpresa();
+  resetFormAd();
+  setTab('empresas');
+  refreshIcons();
+  // Auto-guardado: cada cambio ya llama a persist(). Aseguramos tambien ante unload.
+  window.addEventListener('beforeunload', () => { persist(); });
+}
+init();
+</script>
+</body>
+</html>
