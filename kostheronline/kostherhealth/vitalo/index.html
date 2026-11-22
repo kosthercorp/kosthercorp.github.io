@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="brand/favicon.png" />
+<link rel="apple-touch-icon" href="brand/favicon.png" />
+<title>vitalo — Botiquín Culinario Inteligente</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      vital: { DEFAULT:'#0D9488', 50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a' },
+      vitamina: { DEFAULT:'#F97316', 50:'#fff7ed',100:'#ffedd5',200:'#fed7aa',300:'#fdba74',400:'#fb923c',500:'#f97316',600:'#ea580c',700:'#c2410c',800:'#9a3412',900:'#7c2d12' },
+      mineral: { DEFAULT:'#F8FAFC', card:'#FFFFFF', border:'#E2E8F0' },
+      pizarra: { DEFAULT:'#0F172A', 50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',400:'#94a3b8',500:'#64748b',600:'#475569',700:'#334155',800:'#1e293b',900:'#0f172a' },
+    },
+    fontFamily: { sans: ['Montserrat','sans-serif'] },
+  }},
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+<style>
+  * { font-family:'Montserrat',sans-serif; }
+  body { background:#F8FAFC; color:#0F172A; -webkit-font-smoothing:antialiased; }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:#F8FAFC; }
+  ::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:6px; }
+  ::-webkit-scrollbar-thumb:hover { background:#0D9488; }
+  .view { animation: fadeIn .35s ease-out; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+  .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 24px -8px rgba(15,23,42,.12); border-color:#0D9488; }
+  .timer-ring { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
+  .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+  @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(1.15);} }
+  .wave-bar { animation: waveAnim 1.2s ease-in-out infinite; }
+  .wave-bar:nth-child(2){animation-delay:.15s;} .wave-bar:nth-child(3){animation-delay:.3s;} .wave-bar:nth-child(4){animation-delay:.45s;} .wave-bar:nth-child(5){animation-delay:.6s;}
+  @keyframes waveAnim { 0%,100%{height:6px;} 50%{height:24px;} }
+  .custom-checkbox { appearance:none; width:22px; height:22px; border:2px solid #cbd5e1; border-radius:6px; cursor:pointer; transition:all .2s; flex-shrink:0; position:relative; }
+  .custom-checkbox:checked { background:#0D9488; border-color:#0D9488; }
+  .custom-checkbox:checked::after { content:''; position:absolute; left:6px; top:2px; width:6px; height:11px; border:solid white; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
+  .completed-text { text-decoration: line-through; color:#94a3b8; }
+  .ad-label { letter-spacing:.08em; text-transform:uppercase; font-size:10px; font-weight:600; color:#94a3b8; }
+  .hidden-view { display:none !important; }
+  input[type="range"] { -webkit-appearance:none; appearance:none; height:6px; border-radius:6px; background:#e2e8f0; outline:none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%; background:#F97316; cursor:pointer; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+  input[type="range"]::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#F97316; cursor:pointer; border:2px solid #fff; }
+  .heart-filled path { fill: currentColor !important; }
+  .ad-img { display:block !important; width:100%; height:100%; object-fit:cover; }
+  .ad-fallback { display:none !important; }
+  .ad-fallback-icon { display:none !important; }
+  .ad-container-no-img .ad-img { display:none !important; }
+  .ad-container-no-img .ad-fallback { display:flex !important; }
+  .ad-container-no-img .ad-fallback-icon { display:block !important; }
+</style>
+</head>
+<body class="bg-mineral text-pizarra min-h-screen">
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="sticky top-0 z-40 bg-pizarra text-white border-b border-pizarra-700 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-14 lg:h-16">
+      <div class="flex items-center gap-2">
+        <img src="brand/logo-claro.png" alt="vitalo" class="w-10 h-10 rounded-xl object-cover"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="hidden w-10 h-10 rounded-xl bg-vital items-center justify-center" style="display:none;">
+          <i data-lucide="heart-pulse" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold tracking-tight">vitalo</h1>
+          <p class="text-[10px] text-pizarra-400 font-medium -mt-1 hidden sm:block">Botiquín Culinario Inteligente</p>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-1">
+        <button data-nav="home" class="nav-btn px-3 py-2 rounded-lg text-sm font-semibold text-pizarra-300 hover:bg-pizarra-800 hover:text-vital transition-colors flex items-center gap-1.5">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>Inicio
+        </button>
+        <button data-nav="shopping" class="nav-btn px-3 py-2 rounded-lg text-sm font-semibold text-pizarra-300 hover:bg-pizarra-800 hover:text-vital transition-colors flex items-center gap-1.5">
+          <i data-lucide="shopping-basket" class="w-4 h-4"></i>Compras
+        </button>
+      </nav>
+      <div class="flex items-center gap-1.5">
+        <button id="floating-toggle" class="relative w-10 h-10 rounded-xl bg-vital text-white flex items-center justify-center hover:bg-vital-700 transition-colors">
+          <i data-lucide="timer" class="w-5 h-5"></i>
+          <span id="floating-dot" class="absolute -top-1 -right-1 w-3 h-3 bg-vitamina rounded-full pulse-dot hidden"></span>
+        </button>
+      </div>
+    </div>
+    <!-- Nav mobile -->
+    <nav class="md:hidden flex items-center justify-around border-t border-pizarra-700 -mx-4 px-4 py-1.5">
+      <button data-nav="home" class="nav-btn-m flex flex-col items-center gap-0.5 text-[10px] font-semibold text-pizarra-400">
+        <i data-lucide="layout-grid" class="w-5 h-5"></i><span>Inicio</span>
+      </button>
+      <button data-nav="shopping" class="nav-btn-m flex flex-col items-center gap-0.5 text-[10px] font-semibold text-pizarra-400">
+        <i data-lucide="shopping-basket" class="w-5 h-5"></i><span>Compras</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN
+============================================================ -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-6">
+
+  <!-- VISTA: HOME -->
+  <section id="view-home" class="view">
+    <div class="mb-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-pizarra">¿Qué necesitas hoy?</h2>
+      <p class="text-pizarra-500 text-sm mt-1">Selecciona tu estado y descubre recetas funcionales para recuperarte.</p>
+    </div>
+
+    <!-- Grid de 6 estados -->
+    <div id="estados-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
+
+    <!-- Banner publicitario horizontal -->
+    <div class="my-8" id="ad-home-banner"></div>
+  </section>
+
+  <!-- VISTA: RECETAS -->
+  <section id="view-recipes" class="view hidden-view">
+    <div class="flex items-center gap-3 mb-6">
+      <button onclick="App.navigate('home')" class="w-9 h-9 rounded-xl bg-white border border-mineral-border flex items-center justify-center hover:border-vital transition-colors">
+        <i data-lucide="arrow-left" class="w-5 h-5 text-pizarra"></i>
+      </button>
+      <div>
+        <h2 id="recipes-title" class="text-2xl font-extrabold text-pizarra"></h2>
+        <p id="recipes-subtitle" class="text-pizarra-500 text-sm mt-0.5"></p>
+      </div>
+      </div>
+    </div>
+    <!-- Kuzz recommendation (solo para resaca y enfocar — bebida helada) -->
+    <div id="kuzz-recommendation" class="hidden mb-6"></div>
+    <div id="recipe-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    <div class="my-8" id="ad-recipes-banner"></div>
+  </section>
+
+  <!-- VISTA: COCINA -->
+  <section id="view-cooking" class="view hidden-view">
+    <div class="max-w-3xl mx-auto">
+      <button onclick="App.navigate('recipes')" class="mb-4 px-4 py-2 rounded-xl bg-white border border-mineral-border text-pizarra font-semibold text-sm hover:border-vital transition flex items-center gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>Volver a recetas
+      </button>
+      <div class="bg-white border border-mineral-border rounded-2xl p-6 mb-6">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
+          <span id="cooking-sintoma" class="px-2.5 py-1 rounded-md bg-vital-50 text-vital text-xs font-bold"></span>
+          <span class="text-xs text-pizarra-500 font-medium flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i><span id="cooking-time"></span></span>
+          <span class="text-xs text-pizarra-500 font-medium flex items-center gap-1"><i data-lucide="flame" class="w-3.5 h-3.5"></i><span id="cooking-calories"></span></span>
+        </div>
+        <h2 id="cooking-title" class="text-2xl font-extrabold text-pizarra mb-2"></h2>
+        <div class="bg-vital-50 rounded-xl p-3 mb-4 flex items-start gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4 text-vital flex-shrink-0 mt-0.5"></i>
+          <p id="cooking-benefit" class="text-sm text-pizarra-700"></p>
+        </div>
+        <!-- Escalador de porciones -->
+        <div class="flex items-center gap-3 bg-mineral rounded-xl p-3">
+          <i data-lucide="users" class="w-5 h-5 text-pizarra-500 flex-shrink-0"></i>
+          <span class="text-sm font-semibold text-pizarra">Porciones:</span>
+          <button id="servings-decrease" class="w-8 h-8 rounded-lg bg-white border border-mineral-border font-extrabold hover:border-vital hover:text-vital transition flex items-center justify-center"><i data-lucide="minus" class="w-4 h-4"></i></button>
+          <span id="cooking-servings-display" class="text-lg font-extrabold text-vital min-w-[2rem] text-center tabular-nums">4</span>
+          <button id="servings-increase" class="w-8 h-8 rounded-lg bg-white border border-mineral-border font-extrabold hover:border-vital hover:text-vital transition flex items-center justify-center"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          <span class="text-xs text-pizarra-400 ml-auto" id="cooking-servings-original"></span>
+        </div>
+      </div>
+
+      <!-- Ingredientes -->
+      <div class="bg-white border border-mineral-border rounded-2xl p-6 mb-6">
+        <h3 class="text-lg font-bold text-pizarra mb-4 flex items-center gap-2"><i data-lucide="list-checks" class="w-5 h-5 text-vital"></i>Ingredientes</h3>
+        <div id="cooking-ingredients" class="space-y-3"></div>
+      </div>
+
+      <!-- Ad entre ingredientes y pasos -->
+      <div class="my-8" id="ad-cooking-middle"></div>
+
+      <!-- Pasos -->
+      <div class="bg-white border border-mineral-border rounded-2xl p-6 mb-6">
+        <h3 class="text-lg font-bold text-pizarra mb-4 flex items-center gap-2"><i data-lucide="footprints" class="w-5 h-5 text-vitamina"></i>Pasos de preparación</h3>
+        <div id="cooking-steps" class="space-y-4"></div>
+      </div>
+
+      <!-- Recomendacion Kuzz inline -->
+      <div class="mb-6" id="kuzz-inline-rec"></div>
+
+      <button id="btn-complete-cooking" class="w-full py-3.5 rounded-xl bg-vital text-white font-bold text-base hover:bg-vital-700 transition flex items-center justify-center gap-2">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>Marcar receta como completada
+      </button>
+    </div>
+  </section>
+
+  <!-- VISTA: COMPRAS -->
+  <section id="view-shopping" class="view hidden-view">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-pizarra">Lista de Compras</h2>
+        <p class="text-pizarra-500 text-sm mt-1">Ingredientes consolidados de tus recetas. Marca lo que ya tienes.</p>
+      </div>
+      <button id="btn-clear-shopping" class="px-4 py-2 rounded-xl bg-white border border-mineral-border text-pizarra font-semibold text-sm hover:border-vitamina hover:text-vitamina transition flex items-center gap-2">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>Reiniciar
+      </button>
+    </div>
+    <div class="bg-white border border-mineral-border rounded-2xl p-4 mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-semibold text-pizarra">Progreso de compras</span>
+        <span id="shopping-progress-text" class="text-sm font-bold text-vital">0 / 0</span>
+      </div>
+      <div class="w-full h-2.5 rounded-full bg-mineral-border overflow-hidden">
+        <div id="shopping-progress-bar" class="h-full bg-vital rounded-full transition-all duration-300" style="width:0%"></div>
+      </div>
+    </div>
+    <div id="shopping-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <div id="shopping-empty" class="hidden text-center py-12">
+      <div class="w-16 h-16 rounded-full bg-mineral mx-auto flex items-center justify-center mb-4">
+        <i data-lucide="shopping-cart" class="w-8 h-8 text-pizarra-300"></i>
+      </div>
+      <h3 class="text-lg font-bold text-pizarra">Tu lista está vacía</h3>
+      <p class="text-pizarra-500 text-sm mt-1">Explora recetas y abre el modo cocina para generar tu lista.</p>
+      <button onclick="App.navigate('home')" class="mt-4 px-5 py-2.5 rounded-xl bg-vital text-white font-semibold text-sm hover:bg-vital-700 transition">Ir al inicio</button>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     PANEL FLOTANTE: Pomodoro + Sonido Ambiente
+============================================================ -->
+<aside id="floating-panel" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-pizarra text-white border-l border-pizarra-700 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 overflow-y-auto">
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-lg bg-vital flex items-center justify-center"><i data-lucide="timer" class="w-5 h-5 text-white"></i></div>
+        <div><h3 class="font-extrabold text-sm">Foco y Relax</h3><p class="text-[10px] text-pizarra-400">Pomodoro + Sonido Ambiente</p></div>
+      </div>
+      <button id="floating-close" class="w-8 h-8 rounded-lg hover:bg-pizarra-800 flex items-center justify-center transition"><i data-lucide="x" class="w-5 h-5 text-pizarra-300"></i></button>
+    </div>
+
+    <!-- Pomodoro -->
+    <div class="bg-pizarra-800 rounded-2xl p-5 mb-5">
+      <h4 class="text-sm font-bold mb-3 flex items-center gap-2"><i data-lucide="clock-3" class="w-4 h-4 text-vital"></i>Temporizador Pomodoro</h4>
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <button data-mode="work" class="pomodoro-mode px-2 py-2 rounded-lg text-xs font-bold bg-vital text-white">Enfoque<br><span class="text-[10px] font-semibold opacity-80">25:00</span></button>
+        <button data-mode="short" class="pomodoro-mode px-2 py-2 rounded-lg text-xs font-bold bg-pizarra-700 border border-pizarra-600 text-pizarra-300 hover:border-vital transition">Descanso<br><span class="text-[10px] opacity-60">05:00</span></button>
+        <button data-mode="long" class="pomodoro-mode px-2 py-2 rounded-lg text-xs font-bold bg-pizarra-700 border border-pizarra-600 text-pizarra-300 hover:border-vital transition">Pausa larga<br><span class="text-[10px] opacity-60">15:00</span></button>
+      </div>
+      <div class="relative w-48 h-48 mx-auto mb-4">
+        <svg class="w-full h-full" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#334155" stroke-width="10" />
+          <circle id="timer-progress" class="timer-ring" cx="100" cy="100" r="88" fill="none" stroke="#F97316" stroke-width="10" stroke-linecap="round" stroke-dasharray="552.92" stroke-dashoffset="0" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="timer-display" class="text-3xl font-extrabold text-white tabular-nums">25:00</span>
+          <span id="timer-label" class="text-[10px] font-semibold text-pizarra-400 mt-1">MODO ENFOQUE</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button id="timer-start" class="py-2.5 rounded-xl bg-vital text-white font-bold text-sm hover:bg-vital-700 transition flex items-center justify-center gap-1.5"><i data-lucide="play" class="w-4 h-4"></i><span>Iniciar</span></button>
+        <button id="timer-pause" class="py-2.5 rounded-xl bg-pizarra-700 border border-pizarra-600 text-pizarra-300 font-bold text-sm hover:border-vital transition flex items-center justify-center gap-1.5"><i data-lucide="pause" class="w-4 h-4"></i><span>Pausar</span></button>
+        <button id="timer-reset" class="py-2.5 rounded-xl bg-pizarra-700 border border-pizarra-600 text-pizarra-300 font-bold text-sm hover:border-vital transition flex items-center justify-center gap-1.5"><i data-lucide="rotate-ccw" class="w-4 h-4"></i><span>Reiniciar</span></button>
+      </div>
+      <div class="flex items-center gap-2 mb-3">
+        <label class="text-xs font-semibold text-pizarra-400 whitespace-nowrap">Min:</label>
+        <input id="timer-custom-minutes" type="number" min="1" max="90" value="25" class="w-16 px-2 py-1.5 rounded-lg bg-pizarra-700 border border-pizarra-600 text-sm font-bold text-center focus:outline-none focus:border-vital" />
+        <button id="timer-apply-custom" class="px-3 py-1.5 rounded-lg bg-pizarra-600 text-white text-xs font-bold hover:bg-pizarra-500 transition">Aplicar</button>
+      </div>
+      <div class="flex items-center justify-between text-xs">
+        <span class="text-pizarra-400 font-medium flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-vital"></i>Ciclos completados</span>
+        <span id="timer-cycles" class="font-extrabold text-vital text-base">0</span>
+      </div>
+    </div>
+
+    <!-- Sonido Ambiente -->
+    <div class="bg-pizarra-800 rounded-2xl p-5 border border-pizarra-700">
+      <h4 class="text-sm font-bold mb-3 flex items-center gap-2"><i data-lucide="audio-waveform" class="w-4 h-4 text-vitamina"></i>Sonido Ambiente</h4>
+      <div class="grid grid-cols-1 gap-2 mb-4">
+        <button data-noise="white" class="noise-type px-3 py-2.5 rounded-xl bg-pizarra-700 border border-pizarra-600 text-left hover:border-vitamina transition flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-vitamina/10 flex items-center justify-center flex-shrink-0"><i data-lucide="brain" class="w-4 h-4 text-vitamina"></i></div>
+          <div class="flex-1"><p class="text-sm font-bold text-white">Ruido Blanco</p><p class="text-[10px] text-pizarra-400">Concentración para no dormir</p></div>
+          <i data-lucide="circle" class="w-4 h-4 text-pizarra-500 noise-indicator"></i>
+        </button>
+        <button data-noise="pink" class="noise-type px-3 py-2.5 rounded-xl bg-pizarra-700 border border-pizarra-600 text-left hover:border-vitamina transition flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-vitamina/10 flex items-center justify-center flex-shrink-0"><i data-lucide="cloud-rain" class="w-4 h-4 text-vitamina"></i></div>
+          <div class="flex-1"><p class="text-sm font-bold text-white">Ruido Rosa</p><p class="text-[10px] text-pizarra-400">Lluvia suave para dormir</p></div>
+          <i data-lucide="circle" class="w-4 h-4 text-pizarra-500 noise-indicator"></i>
+        </button>
+        <button data-noise="brown" class="noise-type px-3 py-2.5 rounded-xl bg-pizarra-700 border border-pizarza-600 text-left hover:border-vitamina transition flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-vitamina/10 flex items-center justify-center flex-shrink-0"><i data-lucide="waves" class="w-4 h-4 text-vitamina"></i></div>
+          <div class="flex-1"><p class="text-sm font-bold text-white">Ruido Marrón</p><p class="text-[10px] text-pizarra-400">Calma profunda</p></div>
+          <i data-lucide="circle" class="w-4 h-4 text-pizarra-500 noise-indicator"></i>
+        </button>
+      </div>
+      <div id="noise-visualizer" class="flex items-end justify-center gap-1 h-8 mb-4 opacity-30">
+        <div class="wave-bar w-1.5 bg-vitamina rounded-full"></div><div class="wave-bar w-1.5 bg-vitamina rounded-full"></div><div class="wave-bar w-1.5 bg-vitamina rounded-full"></div><div class="wave-bar w-1.5 bg-vitamina rounded-full"></div><div class="wave-bar w-1.5 bg-vitamina rounded-full"></div>
+      </div>
+      <div class="flex items-center gap-3 mb-3">
+        <button id="noise-play" class="w-12 h-12 rounded-full bg-vitamina text-white flex items-center justify-center hover:bg-vitamina-600 transition flex-shrink-0"><i data-lucide="play" class="w-5 h-5"></i></button>
+        <div class="flex-1"><label class="text-[10px] font-semibold text-pizarra-400 block mb-1">Volumen</label><input id="noise-volume" type="range" min="0" max="100" value="30" class="w-full" /></div>
+      </div>
+      <p class="text-[10px] text-pizarra-500 text-center">Audio generado con Web Audio API</p>
+    </div>
+  </div>
+</aside>
+<div id="floating-overlay" class="fixed inset-0 bg-pizarra/50 z-40 hidden"></div>
+
+<!-- Modal detalle receta -->
+<div id="recipe-modal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-pizarra/50 backdrop-blur-sm" id="recipe-modal-backdrop"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto">
+      <div id="recipe-modal-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 items-center pointer-events-none"></div>
+
+<script>
+/* =================================================================
+   VITALO — Botiquín Culinario Inteligente
+   JavaScript Vanilla ES6+ — sin frameworks
+================================================================= */
+
+// LocalForage config
+localforage.config({ name:'vitalo-db', storeName:'vitalo_store', description:'Base de datos local de vitalo', driver: localforage.INDEXEDDB });
+
+// ===============================================================
+// ESTADOS / SÍNTOMAS
+// ===============================================================
+const ESTADOS = [
+  { id:'estomago', nombre:'Estómago y Digestión', icon:'utensils', desc:'Acidez, pesadez, gastritis, dieta blanda', color:'vital' },
+  { id:'gripe', nombre:'Gripe y Garganta', icon:'thermometer', desc:'Resfrío, congestión, caldos calientes, vitamina C', color:'vitamina' },
+  { id:'resaca', nombre:'Resaca y Recuperación', icon:'droplets', desc:'Hidratación rápida, caldos reparadores, electrolitos', color:'vital' },
+  { id:'dormir', nombre:'Quiero Dormir', icon:'moon', desc:'Cenas ligeras, relajación, infusiones sedantes', color:'pizarra' },
+  { id:'enfocar', nombre:'No Quiero Dormir', icon:'zap', desc:'Enfoque nocturno, estudio, bebidas activadoras', color:'vitamina' },
+  { id:'hierro', nombre:'Subir el Hierro', icon:'heart-pulse', desc:'Anemia, fatiga, hierro + cítricos para absorción', color:'vital' },
+];
+
+// ===============================================================
+// RECETAS (18 funcionales, 3 por estado)
+// ===============================================================
+const RECETAS = [
+  // ESTÓMAGO Y DIGESTIÓN
+  { id:'dieta-blanda-pollo', nombre:'Dieta blanda de pollo sancochado y papa amarilla', sintoma:'estomago', tiempoMinutos:35, porciones:2, calorias:280,
+    beneficioClave:'Fácil digestión, suave para la mucosa gástrica irritada, sin grasa ni irritantes.',
+    ingredientes:[
+      {item:'Pechuga de pollo', cantidad:'200 g', productoKosther:false},
+      {item:'Papa amarilla', cantidad:'3 unidades', productoKosther:false},
+      {item:'Arroz blanco', cantidad:'1/2 taza', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'1 pizca', productoKosther:true},
+      {item:'Zanahoria', cantidad:'1 unidad', productoKosther:false},
+    ],
+    pasos:['Sancocha el pollo en agua con zanahoria y una pizca de sal marina kalti por 20 min.','Pela y cocina las papas amarillas por separado hasta que estén suaves.','Cocina el arroz blanco con el caldo del pollo colado.','Sirve todo junto: pollo desmenuzado, papas y arroz, sin condimentos fuertes.','Come tibio, despacio y en porciones pequeñas.'] },
+  { id:'infusion-muna-naranja', nombre:'Infusión tibia de muña, naranja y miel', sintoma:'estomago', tiempoMinutos:15, porciones:1, calorias:60,
+    beneficioClave:'La muña calma espasmos digestivos; la naranja aporta vitamina C suave; la miel protege la mucosa.',
+    ingredientes:[
+      {item:'Muña seca', cantidad:'1 cucharada', productoKosther:false},
+      {item:'Naranja', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Miel de abejas', cantidad:'1 cucharadita', productoKosther:false},
+      {item:'Manzanilla', cantidad:'1 cucharadita', productoKosther:true},
+    ],
+    pasos:['Hierve una taza de agua y retira del fuego.','Agrega la muña y la manzanilla, tapa por 5 min.','Cuela la infusión.','Exprime el jugo de media naranja tibia dentro.','Endulza con miel y bebe tibio, despacio.'] },
+  { id:'arroz-zanahoria', nombre:'Arroz blanco con caldo de zanahoria', sintoma:'estomago', tiempoMinutos:30, porciones:3, calorias:220,
+    beneficioClave:'El caldo de zanahoria repara la mucosa intestinal; el arroz blanco es astringente suave.',
+    ingredientes:[
+      {item:'Arroz blanco', cantidad:'1 taza', productoKosther:false},
+      {item:'Zanahoria', cantidad:'3 unidades', productoKosther:false},
+      {item:'Cebolla', cantidad:'1/4 unidad', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'Al gusto', productoKosther:true},
+    ],
+    pasos:['Cocina las zanahorias con cebolla en agua por 20 min hasta que estén muy suaves.','Licúa las zanahorias con el caldo de cocción.','Usa este caldo para cocinar el arroz blanco.','Añade sal marina kalti al gusto.','Sirve tibio, en porciones pequeñas.'] },
+
+  // GRIPE Y GARGANTA
+  { id:'caldo-gallina-kion', nombre:'Caldo concentrado de gallina con kión', sintoma:'gripe', tiempoMinutos:60, porciones:4, calorias:180,
+    beneficioClave:'El kión descongestiona y es antiinflamatorio; el caldo calienta y repara la garganta irritada.',
+    ingredientes:[
+      {item:'Gallina o pollo entero', cantidad:'500 g', productoKosther:false},
+      {item:'Kión (jengibre)', cantidad:'50 g', productoKosther:false},
+      {item:'Cebolla', cantidad:'1 unidad', productoKosther:false},
+      {item:'Ajo', cantidad:'3 dientes', productoKosther:false},
+      {item:'Orégano seco', cantidad:'1 cucharada', productoKosther:true},
+      {item:'Sal marina kalti', cantidad:'Al gusto', productoKosther:true},
+    ],
+    pasos:['En una olla grande, pon a hervir la gallina con agua abundante.','Agrega cebolla, ajo machacado y kión rallado.','Cocina a fuego medio por 45 minutos espumando el caldo.','Agrega orégano seco y sal marina kalti al gusto.','Cuela y sirve bien caliente, puede tomar solo el caldo.'] },
+  { id:'infusion-manzanilla-limon', nombre:'Infusión de manzanilla con limón y miel', sintoma:'gripe', tiempoMinutos:10, porciones:1, calorias:50,
+    beneficioClave:'La manzanilla es antiinflamatoria y sedante; el limón aporta vitamina C; la miel suaviza la garganta.',
+    ingredientes:[
+      {item:'Manzanilla seca', cantidad:'1 cucharada', productoKosther:true},
+      {item:'Limón', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Miel de abejas', cantidad:'1 cucharadita', productoKosther:false},
+    ],
+    pasos:['Hierve una taza de agua.','Agrega la manzanilla y tapa por 5 minutos.','Cuela y añade el jugo de medio limón.','Endulza con miel.','Bebe caliente, ideal antes de dormir.'] },
+  { id:'jugo-naranja-vitc', nombre:'Jugo tibio de naranja con vitamina C', sintoma:'gripe', tiempoMinutos:10, porciones:1, calorias:110,
+    beneficioClave:'Vitamina C concentrada para reforzar el sistema inmune durante el resfrío.',
+    ingredientes:[
+      {item:'Naranjas', cantidad:'3 unidades', productoKosther:false},
+      {item:'Limón', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+    ],
+    pasos:['Exprime las naranjas y el medio limón.','Calienta el jugo ligeramente en baño maría (no hervir).','Endulza con miel.','Bebe tibio, no caliente, para conservar la vitamina C.'] },
+
+  // RESACA Y RECUPERACIÓN
+  { id:'caldo-levantamuertos', nombre:'Caldo levantamuertos post-resaca', sintoma:'resaca', tiempoMinutos:50, porciones:2, calorias:250,
+    beneficioClave:'Rehidrata, repone sodio y potasio, calma el estómago y da energía rápida sin esfuerzo digestivo.',
+    ingredientes:[
+      {item:'Cabeza de pollo o huesos', cantidad:'300 g', productoKosther:false},
+      {item:'Kión', cantidad:'30 g', productoKosther:false},
+      {item:'Cebolla', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Ajo', cantidad:'2 dientes', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'1 cucharadita', productoKosther:true},
+      {item:'Cilantro', cantidad:'Para decorar', productoKosther:false},
+    ],
+    pasos:['Lava los huesos y ponlos a hervir con agua abundante.','Agrega cebolla, ajo y kión rallado.','Cocina por 40 minutos a fuego medio.','Añade sal marina kalti (clave para repone sodio).','Cuela, sirve caliente con cilantro picado.'] },
+  { id:'suero-casero', nombre:'Suero casero de electrolitos', sintoma:'resaca', tiempoMinutos:5, porciones:1, calorias:80,
+    beneficioClave:'Repone agua, sodio y azúcar rápidamente para recuperar hidratación después del alcohol.',
+    ingredientes:[
+      {item:'Agua', cantidad:'1 litro', productoKosther:false},
+      {item:'Limón', cantidad:'1 unidad', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'1 cucharadita', productoKosther:true},
+      {item:'Endulzante natural dulzal', cantidad:'1 cucharada', productoKosther:true},
+    ],
+    pasos:['Mezcla el agua con el jugo de un limón.','Agrega sal marina kalti y endulzante natural dulzal.','Revuelve bien hasta disolver todo.','Bebe lentamente durante 1 hora.'] },
+  { id:'jugo-verde-reparador', nombre:'Jugo verde reparador de espinaca y manzana', sintoma:'resaca', tiempoMinutos:10, porciones:1, calorias:120,
+    beneficioClave:'Antioxidantes y potasio de la espinaca, fructosa de la manzana para estabilizar el azúcar.',
+    ingredientes:[
+      {item:'Espinaca fresca', cantidad:'1 taza', productoKosther:false},
+      {item:'Manzana', cantidad:'1 unidad', productoKosther:false},
+      {item:'Limón', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Agua', cantidad:'1/2 taza', productoKosther:false},
+    ],
+    pasos:['Lava la espinaca y corta la manzana en trozos.','Licúa todo con agua y jugo de limón.','Cuela si prefieres más suave.','Bebe inmediatamente, bien frío.'] },
+
+  // QUIERO DORMIR
+  { id:'leche-dorada-curcuma', nombre:'Leche dorada de cúrcuma para dormir', sintoma:'dormir', tiempoMinutos:15, porciones:1, calorias:150,
+    beneficioClave:'La cúrcuma es antiinflamatoria y relajante; la leche tibia contiene triptófano que ayuda a dormir.',
+    ingredientes:[
+      {item:'Leche', cantidad:'1 taza', productoKosther:false},
+      {item:'Cúrcuma molida', cantidad:'1 cucharadita', productoKosther:false},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+      {item:'Canela molida', cantidad:'1 pizca', productoKosther:true},
+    ],
+    pasos:['Calienta la leche a fuego bajo sin hervir.','Agrega cúrcuma y canela molida.','Revuelve bien hasta disolver.','Endulza con miel.','Bebe tibia 30 min antes de dormir.'] },
+  { id:'infusion-valeriana', nombre:'Infusión de valeriana y manzanilla', sintoma:'dormir', tiempoMinutos:10, porciones:1, calorias:40,
+    beneficioClave:'La valeriana es sedante natural; la manzanilla relaja el sistema nervioso central.',
+    ingredientes:[
+      {item:'Valeriana seca', cantidad:'1 cucharadita', productoKosther:false},
+      {item:'Manzanilla', cantidad:'1 cucharada', productoKosther:true},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+    ],
+    pasos:['Hierve una taza de agua.','Agrega valeriana y manzanilla, tapa 7 min.','Cula y endulza con miel.','Bebe caliente 30 min antes de acostarse.'] },
+  { id:'cena-ligera-palta', nombre:'Cena ligera: ensalada suave de lechuga y palta', sintoma:'dormir', tiempoMinutos:15, porciones:1, calorias:200,
+    beneficioClave:'Cena ligera de fácil digestión; la palta aporta grasas saludables que relajan.',
+    ingredientes:[
+      {item:'Lechuga', cantidad:'4 hojas', productoKosther:false},
+      {item:'Palta', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Limón', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'1 pizca', productoKosther:true},
+      {item:'Aceite de oliva olivar', cantidad:'1 cucharadita', productoKosther:true},
+    ],
+    pasos:['Lava y corta la lechuga en tiras.','Corta la palta en rodajas.','Mezcla en un bowl con aceite de oliva y jugo de limón.','Añade sal marina kalti al gusto.','Come 2 horas antes de dormir.'] },
+
+  // NO QUIERO DORMIR (Estudio/Enfoque)
+  { id:'batido-avena-cacao', nombre:'Batido de avena, plátano y cacao para estudiar', sintoma:'enfocar', tiempoMinutos:10, porciones:1, calorias:280,
+    beneficioClave:'Energía sostenida de la avena, potasio del plátano y antioxidantes del cacao para enfoque mental.',
+    ingredientes:[
+      {item:'Avena en hojuelas', cantidad:'3 cucharadas', productoKosther:false},
+      {item:'Plátano', cantidad:'1 unidad', productoKosther:false},
+      {item:'Cacao en polvo', cantidad:'1 cucharada', productoKosther:false},
+      {item:'Leche', cantidad:'1 taza', productoKosther:false},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+    ],
+    pasos:['Coloca todos los ingredientes en la licuadora.','Licúa por 1 minuto hasta que esté suave.','Sirve inmediatamente en vaso alto.','Bebe antes de empezar a estudiar.'] },
+  { id:'cafe-canela-miel', nombre:'Café con canela y miel', sintoma:'enfocar', tiempoMinutos:10, porciones:1, calorias:80,
+    beneficioClave:'Cafeína para alerta mental; la canela estabiliza el azúcar en sangre evitando picos y caídas.',
+    ingredientes:[
+      {item:'Café molido', cantidad:'2 cucharadas', productoKosther:false},
+      {item:'Canela molida', cantidad:'1/2 cucharadita', productoKosther:true},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+      {item:'Agua', cantidad:'1 taza', productoKosther:false},
+    ],
+    pasos:['Prepara el café como prefieras (filtrado, prensa francesa).','Agrega canela molida mientras está caliente.','Endulza con miel en lugar de azúcar.','Revuelve y bebe tibio.'] },
+  { id:'infusion-hierba-luisa', nombre:'Infusión de hierba luisa activadora', sintoma:'enfocar', tiempoMinutos:10, porciones:1, calorias:30,
+    beneficioClave:'La hierba luisa despeja la mente sin cafeína; ideal para estudio nocturno suave sin insomnio.',
+    ingredientes:[
+      {item:'Hierba luisa seca', cantidad:'1 cucharada', productoKosther:true},
+      {item:'Limón', cantidad:'1 rodaja', productoKosther:false},
+      {item:'Miel', cantidad:'1 cucharadita', productoKosther:false},
+    ],
+    pasos:['Hierve una taza de agua.','Agrega la hierba luisa y la rodaja de limón.','Tapa por 5 minutos y cuela.','Endulza con miel.','Bebe tibia durante la sesión de estudio.'] },
+
+  // SUBIR EL HIERRO
+  { id:'sangrecita-limon', nombre:'Sangrecita saltada con limón', sintoma:'hierro', tiempoMinutos:25, porciones:3, calorias:220,
+    beneficioClave:'La sangrecita es la fuente más rica de hierro hiermo; el limón (vitamina C) multiplica su absorción.',
+    ingredientes:[
+      {item:'Sangrecita de pollo', cantidad:'300 g', productoKosther:false},
+      {item:'Cebolla', cantidad:'1 unidad', productoKosther:false},
+      {item:'Ajo', cantidad:'2 dientes', productoKosther:false},
+      {item:'Limón', cantidad:'2 unidades', productoKosther:false},
+      {item:'Orégano seco', cantidad:'1 cucharada', productoKosther:true},
+      {item:'Sal marina kalti', cantidad:'Al gusto', productoKosther:true},
+      {item:'Aceite', cantidad:'2 cucharadas', productoKosther:false},
+    ],
+    pasos:['Lava bien la sangrecita con agua y limón, escurre.','En una sartén, sofríe cebolla y ajo en aceite.','Agrega la sangrecita y saltea por 10 min.','Añade orégano seco y sal marina kalti.','Exprime jugo de 2 limones encima antes de servir (clave para absorción).'] },
+  { id:'tortilla-espinaca-higado', nombre:'Tortilla de espinaca e hígado', sintoma:'hierro', tiempoMinutos:20, porciones:2, calorias:320,
+    beneficioClave:'Doble dosis de hierro: hígado (hierro hemo) + espinaca (hierro no hemo) con vitamina C del limón.',
+    ingredientes:[
+      {item:'Hígado de pollo', cantidad:'200 g', productoKosther:false},
+      {item:'Espinaca fresca', cantidad:'1 taza', productoKosther:false},
+      {item:'Huevos', cantidad:'3 unidades', productoKosther:false},
+      {item:'Cebolla', cantidad:'1/2 unidad', productoKosther:false},
+      {item:'Limón', cantidad:'1 unidad', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'Al gusto', productoKosther:true},
+    ],
+    pasos:['Pica el hígado y la cebolla, saltea en sartén 8 min.','Agrega la espinaca picada y cocina 2 min más.','Bate los huevos con sal marina kalti y vierte sobre la mezcla.','Cocina a fuego bajo tapado por 8 min o hasta cuajar.','Exprime limón encima antes de servir.'] },
+  { id:'lentejas-citricas', nombre:'Lentejas con ensalada cítrica', sintoma:'hierro', tiempoMinutos:50, porciones:4, calorias:380,
+    beneficioClave:'Las lentejas aportan hierro vegetal; la ensalada cítrica (naranja + limón) maximiza la absorción del hierro no hemo.',
+    ingredientes:[
+      {item:'Lentejas', cantidad:'1 taza', productoKosther:true},
+      {item:'Cebolla', cantidad:'1 unidad', productoKosther:false},
+      {item:'Ajo', cantidad:'2 dientes', productoKosther:false},
+      {item:'Naranja', cantidad:'1 unidad', productoKosther:false},
+      {item:'Limón', cantidad:'1 unidad', productoKosther:false},
+      {item:'Lechuga', cantidad:'4 hojas', productoKosther:false},
+      {item:'Sal marina kalti', cantidad:'Al gusto', productoKosther:true},
+      {item:'Aceite de oliva olivar', cantidad:'1 cucharada', productoKosther:true},
+    ],
+    pasos:['Cocina las lentejas con cebolla y ajo por 40 min hasta que estén suaves.','Prepara la ensalada: lechuga, gajos de naranja y jugo de limón.','Aliña la ensalada con aceite de oliva olivar y sal marina kalti.','Sirve las lentejas tibias con la ensalada cítrica al lado.','Come la ensalada junto con las lentejas para máxima absorción de hierro.'] },
+];
+
+// ===============================================================
+// KOSTHER WHATSAPP
+// ===============================================================
+const WHATSAPP_KOSTHER = '51933844790';
+function waKuzz() { return `https://wa.me/${WHATSAPP_KOSTHER}?text=${encodeURIComponent('Hola, quiero pedir un Kuzz de hierbaluisa y maracuyá (bebida helada 1 litro)')}`; }
+
+// ===============================================================
+// ESTADO
+// ===============================================================
+const State = {
+  vistaActual: 'home',
+  estadoSeleccionado: null,
+  currentRecipeId: null,
+  cookingServings: 4,
+  originalServings: 4,
+  checkedIngredients: {},
+  checkedSteps: {},
+  shoppingList: {},
+  favoritos: [],
+  prefs: { pomodoroMode:'work', noiseVolume:30, noiseType:'white' },
+  deferredPrompt: null,
+};
+
+// Store
+const Store = {
+  async cargar() {
+    State.favoritos = (await localforage.getItem('favoritos')) || [];
+    State.shoppingList = (await localforage.getItem('shopping_list')) || {};
+    const p = await localforage.getItem('prefs'); if (p) State.prefs = { ...State.prefs, ...p };
+  },
+  async saveFavs() { await localforage.setItem('favoritos', State.favoritos); },
+  async saveShopping() { await localforage.setItem('shopping_list', State.shoppingList); },
+  async savePrefs() { await localforage.setItem('prefs', State.prefs); },
+};
+
+// UI utils
+const UI = {
+  toast(msg, tipo='info') {
+    const c = document.getElementById('toast-container');
+    const d = document.createElement('div');
+    const styles = { info:'bg-pizarra text-white', success:'bg-vital text-white', warning:'bg-vitamina text-white' };
+    const icons = { info:'info', success:'check-circle', warning:'alert-triangle' };
+    d.className = `${styles[tipo]} px-4 py-3 rounded-xl shadow-lg text-sm font-semibold flex items-center gap-2 pointer-events-auto`;
+    d.innerHTML = `<i data-lucide="${icons[tipo]}" class="w-4 h-4"></i><span>${msg}</span>`;
+    c.appendChild(d);
+    lucide.createIcons();
+    setTimeout(() => { d.style.opacity='0'; d.style.transition='opacity .3s'; setTimeout(()=>d.remove(),300); }, 2500);
+  },
+  refreshIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); },
+  getRecipe(id) { return RECETAS.find(r => r.id === id); },
+  scaleQty(qty, orig, nueva) {
+    if (nueva === orig) return qty;
+    const ratio = nueva / orig;
+    const m = qty.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+    if (!m) return qty;
+    const num = parseFloat(m[1].replace(',','.')); const unit = m[2];
+    if (isNaN(num)) return qty;
+    let scaled = num * ratio;
+    let f; if (scaled>=100) f=Math.round(scaled); else if (scaled>=10) f=Math.round(scaled*10)/10; else f=Math.round(scaled*100)/100;
+    f = f.toString().replace(/\.0$/,'');
+    return f + (unit ? ' ' + unit : '');
+  },
+};
+
+// ===============================================================
+// ADS
+// ===============================================================
+const Ads = {
+  // Pool: Kuzz (4 imágenes) + brand/vitalo (3 imágenes) = 7 anuncios
+  // Cada imagen tiene variante D (desktop) y M (mobile)
+  // Kuzz: ad/kuzz/1d.jpg..4m.jpg — brand/vitalo: brand/1d.jpg..3m.jpg
+  pool: [
+    { tipo:'kuzz', numero:1 }, { tipo:'kuzz', numero:2 }, { tipo:'kuzz', numero:3 }, { tipo:'kuzz', numero:4 },
+    { tipo:'vitalo', numero:1 }, { tipo:'vitalo', numero:2 }, { tipo:'vitalo', numero:3 },
+  ],
+  recentlyShown: [], lastPicked: null, lastByPosition: {},
+  pickAd(posKey) {
+    const exclude = new Set(this.recentlyShown);
+    if (this.lastPicked) exclude.add(this.lastPicked);
+    if (posKey && this.lastByPosition[posKey]) exclude.add(this.lastByPosition[posKey]);
+    let disp = this.pool.filter(a => !exclude.has(`${a.tipo}-${a.numero}`));
+    if (disp.length === 0 && posKey) disp = this.pool.filter(a => `${a.tipo}-${a.numero}` !== this.lastByPosition[posKey] && `${a.tipo}-${a.numero}` !== this.lastPicked);
+    if (disp.length === 0) disp = this.pool.filter(a => `${a.tipo}-${a.numero}` !== this.lastPicked);
+    if (disp.length === 0) disp = this.pool;
+    const chosen = disp[Math.floor(Math.random() * disp.length)];
+    const key = `${chosen.tipo}-${chosen.numero}`;
+    this.recentlyShown.push(key); if (this.recentlyShown.length > 5) this.recentlyShown.shift();
+    this.lastPicked = key; if (posKey) this.lastByPosition[posKey] = key;
+    return chosen;
+  },
+  url(tipo, numero) {
+    const msgs = {
+      kuzz: 'Hola, quiero pedir un Kuzz de hierbaluisa y maracuyá (bebida helada 1 litro)',
+      vitalo_recetas: 'Hola, me gustaría enviar mis recetas para vitalo',
+      vitalo_donar: 'Hola, me gustaría hacer una donación para vitalo',
+      vitalo_compartir: 'Te recomiendo vitalo, un botiquín culinario inteligente',
+    };
+    let msgTipo = tipo;
+    if (tipo === 'vitalo') msgTipo = numero===1?'vitalo_recetas':numero===2?'vitalo_donar':'vitalo_compartir';
+    const msg = encodeURIComponent(msgs[msgTipo] || msgs.kuzz);
+    if (msgTipo === 'vitalo_compartir') return `https://wa.me/?text=${msg}`;
+    return `https://wa.me/${WHATSAPP_KOSTHER}?text=${msg}`;
+  },
+  // Renderiza un banner horizontal: el ancho es 100% del contenedor,
+  // el alto se ajusta automáticamente a la proporción natural de la imagen.
+  // Usa <picture> con variantes D (desktop >=768px) y M (mobile <768px).
+  render(ad) {
+    const { tipo, numero } = ad;
+    let carpeta, msgTipo, fbIcon, fbTitle, fbDesc;
+    if (tipo === 'kuzz') { carpeta='ad/kuzz'; msgTipo='kuzz'; fbIcon='cup-soda'; fbTitle='Kuzz'; fbDesc='Bebida helada de hierbaluisa y maracuyá · 1 litro'; }
+    else { carpeta='brand'; msgTipo = numero===1?'vitalo_recetas':numero===2?'vitalo_donar':'vitalo_compartir';
+      fbIcon = numero===1?'utensils':numero===2?'heart':'share-2'; fbTitle='vitalo';
+      fbDesc = numero===1?'Envía tus recetas':numero===2?'Apoya con una donación':'Comparte vitalo'; }
+    const url = this.url(tipo, numero);
+    // Variantes: numero + d.jpg (desktop) / numero + m.jpg (mobile)
+    const imgDesktop = `${carpeta}/${numero}d.jpg`;
+    const imgMobile = `${carpeta}/${numero}m.jpg`;
+    return `<div class="flex items-center gap-1.5 mb-2"><i data-lucide="megaphone" class="w-3.5 h-3.5 text-pizarra-400"></i><span class="ad-label">Recomendado</span></div>
+      <a href="${url}" target="_blank" rel="noopener" data-ad-slot="banner" class="ad-container block w-full rounded-2xl overflow-hidden border border-mineral-border relative group bg-gradient-to-br from-vitamina-50 to-mineral">
+        <picture>
+          <source media="(max-width: 767px)" srcset="${imgMobile}">
+          <img src="${imgDesktop}" alt="${fbTitle}" class="ad-img" style="width:100%; height:auto; display:block;" onerror="this.parentElement.parentElement.classList.add('ad-container-no-img');" />
+        </picture>
+        <div class="ad-fallback absolute inset-0 flex-col items-center justify-center text-center p-6 bg-gradient-to-br from-vitamina-50 to-mineral">
+          <div class="w-14 h-14 rounded-full bg-vitamina/10 flex items-center justify-center mb-3"><i data-lucide="${fbIcon}" class="w-7 h-7 text-vitamina"></i></div>
+          <p class="text-lg font-extrabold text-pizarra">${fbTitle}</p><p class="text-xs text-pizarra-500 mt-1">${fbDesc}</p>
+          <div class="mt-3 px-4 py-1.5 rounded-lg bg-vitamina text-white text-xs font-bold flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i>Tocar para ver</div>
+        </div>
+      </a>`;
+  },
+  renderInline(posKey) { return this.render(this.pickAd(posKey)); },
+  renderForView(vista) {
+    // Todos los anuncios son banners horizontales (width:100%, height:auto)
+    const map = {
+      home: [{id:'ad-home-banner', pk:'home-banner'}],
+      recipes: [{id:'ad-recipes-banner', pk:'recipes-banner'}],
+      cooking: [{id:'ad-cooking-middle', pk:'cooking-middle'}],
+    };
+    (map[vista]||[]).forEach(c => {
+      const el = document.getElementById(c.id);
+      if (el) el.innerHTML = this.render(this.pickAd(c.pk));
+    });
+    UI.refreshIcons();
+  },
+};
+
+// ===============================================================
+// POMODORO
+// ===============================================================
+const Pomodoro = {
+  modos: { work:{s:25*60,l:'MODO ENFOQUE'}, short:{s:5*60,l:'DESCANSO CORTO'}, long:{s:15*60,l:'PAUSA LARGA'} },
+  modoActual:'work', tiempoTotal:25*60, tiempoRestante:25*60, corriendo:false, intervalo:null, ciclos:0, audioCtx:null,
+  init() {
+    if (State.prefs.pomodoroMode && this.modos[State.prefs.pomodoroMode]) this.setModo(State.prefs.pomodoroMode);
+    this.render();
+    document.getElementById('timer-start').addEventListener('click',()=>this.iniciar());
+    document.getElementById('timer-pause').addEventListener('click',()=>this.pausar());
+    document.getElementById('timer-reset').addEventListener('click',()=>this.reiniciar());
+    document.getElementById('timer-apply-custom').addEventListener('click',()=>{const m=parseInt(document.getElementById('timer-custom-minutes').value);if(m>0&&m<=90)this.setCustom(m);});
+    document.querySelectorAll('.pomodoro-mode').forEach(b=>b.addEventListener('click',()=>this.setModo(b.dataset.mode)));
+  },
+  setModo(modo) {
+    if(!this.modos[modo])return;
+    this.modoActual=modo; this.tiempoTotal=this.modos[modo].s; this.tiempoRestante=this.tiempoTotal;
+    this.pausar(); State.prefs.pomodoroMode=modo; Store.savePrefs();
+    this.updateModeButtons(); this.render();
+  },
+  setCustom(min) {
+    this.tiempoTotal=min*60; this.tiempoRestante=min*60; this.pausar(); this.modoActual='custom';
+    this.updateModeButtons(); this.render();
+  },
+  updateModeButtons() {
+    document.querySelectorAll('.pomodoro-mode').forEach(b=>{
+      if(b.dataset.mode===this.modoActual){b.className='pomodoro-mode px-2 py-2 rounded-lg text-xs font-bold bg-vital text-white';}
+      else{b.className='pomodoro-mode px-2 py-2 rounded-lg text-xs font-bold bg-pizarra-700 border border-pizarra-600 text-pizarra-300 hover:border-vital transition';}
+    });
+    document.getElementById('timer-label').textContent=this.modos[this.modoActual]?.l||'TIEMPO PERSONALIZADO';
+  },
+  iniciar(){if(this.corriendo)return;this.corriendo=true;document.getElementById('floating-dot').classList.remove('hidden');
+    this.intervalo=setInterval(()=>{this.tiempoRestante--;if(this.tiempoRestante<=0)this.completar();this.render();},1000);},
+  pausar(){this.corriendo=false;clearInterval(this.intervalo);
+    if(this.tiempoRestante>0&&this.tiempoRestante<this.tiempoTotal)document.getElementById('floating-dot').classList.remove('hidden');
+    else if(this.tiempoRestante===this.tiempoTotal)document.getElementById('floating-dot').classList.add('hidden');},
+  reiniciar(){this.pausar();this.tiempoRestante=this.tiempoTotal;document.getElementById('floating-dot').classList.add('hidden');this.render();},
+  completar(){this.pausar();this.tiempoRestante=0;this.beep();
+    if(this.modoActual==='work'){this.ciclos++;document.getElementById('timer-cycles').textContent=this.ciclos;UI.toast('Pomodoro completado. Tómate un descanso.','success');}
+    else UI.toast('Descanso terminado. Volvamos al foco.','info');
+    this.tiempoRestante=this.tiempoTotal;this.render();},
+  beep(){if(!this.audioCtx)this.audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=this.audioCtx;[880,1108,1318].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;
+    const t=ctx.currentTime+i*0.3;o.connect(g);g.connect(ctx.destination);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.3,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+    o.start(t);o.stop(t+0.3);});},
+  render(){const m=Math.floor(this.tiempoRestante/60),s=this.tiempoRestante%60;
+    document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const circ=2*Math.PI*88,prog=this.tiempoRestante/this.tiempoTotal,off=circ*(1-prog);
+    const pc=document.getElementById('timer-progress');pc.setAttribute('stroke-dasharray',circ);pc.setAttribute('stroke-dashoffset',off);},
+};
+
+// ===============================================================
+// NOISE GENERATOR
+// ===============================================================
+const NoiseGen = {
+  audioCtx:null,gainNode:null,source:null,tipo:'white',isPlaying:false,volumen:0.3,
+  init(){this.volumen=State.prefs.noiseVolume/100;document.getElementById('noise-volume').value=State.prefs.noiseVolume;
+    this.tipo=State.prefs.noiseType||'white';this.updateSeleccion();
+    document.getElementById('noise-play').addEventListener('click',()=>this.toggle());
+    document.getElementById('noise-volume').addEventListener('input',e=>{this.setVol(e.target.value/100);State.prefs.noiseVolume=parseInt(e.target.value);Store.savePrefs();});
+    document.querySelectorAll('.noise-type').forEach(b=>b.addEventListener('click',()=>{this.tipo=b.dataset.noise;State.prefs.noiseType=this.tipo;Store.savePrefs();this.updateSeleccion();if(this.isPlaying){this.stop();this.play();}}));},
+  updateSeleccion(){document.querySelectorAll('.noise-type').forEach(b=>{const ind=b.querySelector('.noise-indicator');if(b.dataset.noise===this.tipo){b.classList.add('border-vitamina','bg-vitamina/5');ind.outerHTML='<i data-lucide="check-circle-2" class="w-4 h-4 text-vitamina noise-indicator"></i>';}else{b.classList.remove('border-vitamina','bg-vitamina/5');ind.outerHTML='<i data-lucide="circle" class="w-4 h-4 text-pizarra-500 noise-indicator"></i>';}});UI.refreshIcons();},
+  initAudio(){if(!this.audioCtx){this.audioCtx=new(window.AudioContext||window.webkitAudioContext)();this.gainNode=this.audioCtx.createGain();this.gainNode.gain.value=this.volumen;this.gainNode.connect(this.audioCtx.destination);}if(this.audioCtx.state==='suspended')this.audioCtx.resume();},
+  genBuffer(t){const sr=this.audioCtx.sampleRate,bs=sr*2,buf=this.audioCtx.createBuffer(1,bs,sr),d=buf.getChannelData(0);
+    if(t==='white'){for(let i=0;i<bs;i++)d[i]=Math.random()*2-1;}
+    else if(t==='pink'){let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;for(let i=0;i<bs;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.96900*b2+w*.1538520;b3=.86650*b3+w*.3104856;b4=.55000*b4+w*.5329522;b5=-.7616*b5-w*.0168980;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926;}}
+    else if(t==='brown'){let lo=0;for(let i=0;i<bs;i++){const w=Math.random()*2-1;d[i]=(lo+.02*w)/1.02;lo=d[i];d[i]*=3.5;}}return buf;},
+  play(){this.initAudio();this.stop();const b=this.genBuffer(this.tipo);this.source=this.audioCtx.createBufferSource();this.source.buffer=b;this.source.loop=true;this.source.connect(this.gainNode);this.source.start();this.isPlaying=true;this.updateUI();},
+  stop(){if(this.source){try{this.source.stop();}catch(e){}this.source=null;}this.isPlaying=false;this.updateUI();},
+  toggle(){this.isPlaying?this.stop():this.play();},
+  setVol(v){this.volumen=v;if(this.gainNode)this.gainNode.gain.value=v;},
+  updateUI(){const btn=document.getElementById('noise-play'),icon=btn.querySelector('i'),vis=document.getElementById('noise-visualizer');
+    if(this.isPlaying){icon.setAttribute('data-lucide','pause');vis.classList.remove('opacity-30');vis.classList.add('opacity-100');document.getElementById('floating-dot').classList.remove('hidden');}
+    else{icon.setAttribute('data-lucide','play');vis.classList.add('opacity-30');vis.classList.remove('opacity-100');
+      if(!Pomodoro.corriendo&&Pomodoro.tiempoRestante===Pomodoro.tiempoTotal)document.getElementById('floating-dot').classList.add('hidden');}
+    UI.refreshIcons();},
+};
+
+// ===============================================================
+// RENDER
+// ===============================================================
+const Render = {
+  estados() {
+    const g = document.getElementById('estados-grid');
+    g.innerHTML = ESTADOS.map(e => {
+      const count = RECETAS.filter(r => r.sintoma === e.id).length;
+      const colorBg = e.color === 'vital' ? 'bg-vital' : e.color === 'vitamina' ? 'bg-vitamina' : 'bg-pizarra';
+      return `<button onclick="App.selectEstado('${e.id}')" class="bg-white border border-mineral-border rounded-2xl p-5 card-hover text-left group">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-12 h-12 rounded-xl ${colorBg} flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="${e.icon}" class="w-6 h-6 text-white"></i></div>
+          <span class="text-[10px] font-bold text-pizarra-400 bg-mineral px-2 py-0.5 rounded-full">${count} recetas</span>
+        </div>
+        <h3 class="font-bold text-pizarra text-base leading-tight mb-1">${e.nombre}</h3>
+        <p class="text-xs text-pizarra-500 leading-relaxed">${e.desc}</p>
+      </button>`;
+    }).join('');
+    UI.refreshIcons();
+  },
+
+  kuzzRecommendation() {
+    const el = document.getElementById('kuzz-recommendation');
+    if (!State.estadoSeleccionado) { el.classList.add('hidden'); return; }
+    // Kuzz es bebida helada: se recomienda para Resaca (hidratación fría) y No Quiero Dormir (estudio)
+    const showKuzz = ['resaca','enfocar'].includes(State.estadoSeleccionado);
+    if (!showKuzz) { el.classList.add('hidden'); return; }
+    el.classList.remove('hidden');
+    el.innerHTML = `<div class="bg-gradient-to-r from-vitamina-50 to-mineral border border-vitamina-200 rounded-2xl p-4 flex items-center gap-4">
+      <div class="ad-container w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-vitamina-100 flex items-center justify-center relative">
+        <picture>
+          <source media="(max-width: 767px)" srcset="ad/kuzz/4m.jpg">
+          <img src="ad/kuzz/4d.jpg" alt="Kuzz" class="ad-img" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.parentElement.classList.add('ad-container-no-img');" />
+        </picture>
+        <i data-lucide="cup-soda" class="w-8 h-8 text-vitamina ad-fallback-icon absolute"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-bold text-vitamina uppercase tracking-wide">Bebida helada natural</p>
+        <p class="text-sm font-extrabold text-pizarra">Kuzz de hierbaluisa y maracuyá</p>
+        <p class="text-xs text-pizarra-500 mt-0.5">Bebida helada 1 litro, lista para tomar</p>
+      </div>
+      <a href="${waKuzz()}" target="_blank" rel="noopener" class="flex-shrink-0 px-4 py-2.5 rounded-lg bg-vitamina text-white text-xs font-bold hover:bg-vitamina-600 transition flex items-center gap-1.5">
+        <i data-lucide="shopping-bag" class="w-4 h-4"></i>Pedir
+      </a>
+    </div>`;
+    UI.refreshIcons();
+  },
+
+  recipes() {
+    const estado = State.estadoSeleccionado;
+    const estadoData = ESTADOS.find(e => e.id === estado);
+    document.getElementById('recipes-title').textContent = estadoData.nombre;
+    document.getElementById('recipes-subtitle').textContent = estadoData.desc;
+    const recetas = RECETAS.filter(r => r.sintoma === estado);
+    const grid = document.getElementById('recipe-grid');
+    let html = '';
+    recetas.forEach((r, i) => {
+      const esFav = State.favoritos.includes(r.id);
+      html += `<div class="bg-white border border-mineral-border rounded-2xl overflow-hidden card-hover">
+        <div class="relative h-28 bg-gradient-to-br from-vital-50 to-mineral flex items-center justify-center">
+          <div class="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center"><i data-lucide="${estadoData.icon}" class="w-6 h-6 text-vital"></i></div>
+          <button onclick="App.toggleFav('${r.id}')" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:bg-white transition"><i data-lucide="heart" class="w-4 h-4 ${esFav?'text-vitamina heart-filled':'text-pizarra-300'}"></i></button>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-sm text-pizarra leading-tight mb-1">${r.nombre}</h3>
+          <div class="flex items-center gap-2 text-[10px] text-pizarra-500 mb-2">
+            <span class="flex items-center gap-0.5"><i data-lucide="clock" class="w-3 h-3"></i>${r.tiempoMinutos} min</span>
+            <span class="flex items-center gap-0.5"><i data-lucide="flame" class="w-3 h-3"></i>${r.calorias} kcal</span>
+            <span class="flex items-center gap-0.5"><i data-lucide="users" class="w-3 h-3"></i>${r.porciones} pers.</span>
+          </div>
+          <div class="bg-vital-50 rounded-lg p-2 mb-3"><p class="text-[11px] text-vital-800 leading-snug flex items-start gap-1"><i data-lucide="sparkles" class="w-3 h-3 flex-shrink-0 mt-0.5"></i><span>${r.beneficioClave}</span></p></div>
+          <button onclick="App.abrirDetalle('${r.id}')" class="w-full py-2 rounded-lg bg-vital text-white text-xs font-bold hover:bg-vital-700 transition flex items-center justify-center gap-1.5"><i data-lucide="chef-hat" class="w-3.5 h-3.5"></i>Cocinar</button>
+        </div>
+      </div>`;
+      // Inline ad cada 3 recetas
+      if ((i + 1) % 3 === 0 && i < recetas.length - 1) {
+        html += `<div class="col-span-full">${Ads.renderInline('recipes-inline-' + i)}</div>`;
+      }
+    });
+    grid.innerHTML = html;
+    UI.refreshIcons();
+  },
+
+  cooking(recipeId) {
+    const r = UI.getRecipe(recipeId);
+    if (!r) return;
+    State.originalServings = r.porciones;
+    State.cookingServings = r.porciones;
+    State.checkedIngredients = {};
+    State.checkedSteps = {};
+    const ed = ESTADOS.find(e => e.id === r.sintoma);
+    document.getElementById('cooking-title').textContent = r.nombre;
+    document.getElementById('cooking-sintoma').textContent = ed.nombre;
+    document.getElementById('cooking-time').textContent = `${r.tiempoMinutos} min`;
+    document.getElementById('cooking-calories').textContent = `${r.calorias} kcal`;
+    document.getElementById('cooking-benefit').textContent = r.beneficioClave;
+    document.getElementById('cooking-servings-display').textContent = State.cookingServings;
+    document.getElementById('cooking-servings-original').textContent = `Original: ${State.originalServings}`;
+    this.renderIngredients(r);
+    this.renderSteps(r);
+    // Kuzz inline recommendation (solo para resaca y enfocar — bebida helada)
+    const kuzzRec = document.getElementById('kuzz-inline-rec');
+    if (['resaca','enfocar'].includes(r.sintoma)) {
+      kuzzRec.innerHTML = `<div class="bg-gradient-to-r from-vitamina-50 to-mineral border border-vitamina-200 rounded-2xl p-4 flex items-center gap-4">
+        <div class="ad-container w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-vitamina-100 flex items-center justify-center relative">
+          <picture>
+            <source media="(max-width: 767px)" srcset="ad/kuzz/4m.jpg">
+            <img src="ad/kuzz/4d.jpg" alt="Kuzz" class="ad-img" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.parentElement.classList.add('ad-container-no-img');" />
+          </picture>
+          <i data-lucide="cup-soda" class="w-8 h-8 text-vitamina ad-fallback-icon absolute"></i>
+        </div>
+        <div class="flex-1 min-w-0"><p class="text-xs font-bold text-vitamina uppercase tracking-wide">Bebida helada natural</p><p class="text-sm font-extrabold text-pizarra">Acompaña con Kuzz de hierbaluisa y maracuyá</p><p class="text-xs text-pizarra-500 mt-0.5">Bebida helada 1 litro, lista para tomar</p></div>
+        <a href="${waKuzz()}" target="_blank" rel="noopener" class="flex-shrink-0 px-3 py-2 rounded-lg bg-vitamina text-white text-xs font-bold hover:bg-vitamina-600 transition flex items-center gap-1.5"><i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>Pedir</a>
+      </div>`;
+    } else {
+      kuzzRec.innerHTML = '';
+    }
+    UI.refreshIcons();
+  },
+
+  renderIngredients(r) {
+    const c = document.getElementById('cooking-ingredients');
+    c.innerHTML = r.ingredientes.map((ing, i) => {
+      const qty = UI.scaleQty(ing.cantidad, State.originalServings, State.cookingServings);
+      const checked = State.checkedIngredients[i];
+      return `<div class="flex items-start gap-3">
+        <input type="checkbox" class="custom-checkbox mt-0.5" ${checked?'checked':''} onchange="App.toggleIng(this,${i})">
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-semibold text-pizarra cooking-item-text ${checked?'completed-text':''}">${ing.item}</p>
+          <p class="text-sm text-pizarra-500 cooking-item-qty ${checked?'completed-text':''}">${qty}</p>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('cooking-servings-display').textContent = State.cookingServings;
+    UI.refreshIcons();
+  },
+
+  renderSteps(r) {
+    const c = document.getElementById('cooking-steps');
+    c.innerHTML = r.pasos.map((paso, i) => {
+      const checked = State.checkedSteps[i];
+      return `<div class="flex gap-4">
+        <div class="flex flex-col items-center flex-shrink-0">
+          <div class="w-9 h-9 rounded-full ${checked?'bg-vitamina':'bg-vital'} text-white flex items-center justify-center font-extrabold text-sm cooking-step-num">${i+1}</div>
+          ${i < r.pasos.length - 1 ? '<div class="w-0.5 flex-1 bg-mineral-border my-1"></div>' : ''}
+        </div>
+        <div class="flex-1 pb-2">
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" class="custom-checkbox mt-1" ${checked?'checked':''} onchange="App.toggleStep(this,${i})">
+            <p class="text-base text-pizarra leading-relaxed cooking-step-text ${checked?'completed-text':''}">${paso}</p>
+          </label>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  shopping() {
+    const container = document.getElementById('shopping-list');
+    const empty = document.getElementById('shopping-empty');
+    const items = Object.entries(State.shoppingList);
+    if (items.length === 0) {
+      container.innerHTML = '';
+      empty.classList.remove('hidden');
+      document.getElementById('shopping-progress-text').textContent = '0 / 0';
+      document.getElementById('shopping-progress-bar').style.width = '0%';
+      UI.refreshIcons();
+      return;
+    }
+    empty.classList.add('hidden');
+    const checked = items.filter(([_, v]) => v.checked).length;
+    document.getElementById('shopping-progress-text').textContent = `${checked} / ${items.length}`;
+    document.getElementById('shopping-progress-bar').style.width = `${(checked / items.length) * 100}%`;
+    const grupos = {};
+    items.forEach(([key, val]) => {
+      const letra = val.item.charAt(0).toUpperCase();
+      if (!grupos[letra]) grupos[letra] = [];
+      grupos[letra].push({ key, val });
+    });
+    const letras = Object.keys(grupos).sort();
+    let html = '';
+    letras.forEach((letra, index) => {
+      html += `<div class="bg-white border border-mineral-border rounded-2xl p-4">
+        <h4 class="text-xs font-extrabold text-pizarra-400 mb-3 uppercase tracking-wider">${letra}</h4>
+        <div class="space-y-2">`;
+      grupos[letra].forEach(({ key, val }) => {
+        const safeKey = key.replace(/'/g, "\\'");
+        html += `<label class="flex items-start gap-3 cursor-pointer group">
+          <input type="checkbox" class="custom-checkbox mt-0.5" ${val.checked?'checked':''} onchange="App.toggleShopping('${safeKey}')">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-pizarra ${val.checked?'completed-text':''}">${val.item}</p>
+            <p class="text-xs text-pizarra-500 ${val.checked?'completed-text':''}">${val.cantidad}</p>
+          </div>
+        </label>`;
+      });
+      html += `</div></div>`;
+      if (index < letras.length - 1 && (index + 1) % 2 === 0) {
+        html += `<div class="col-span-full">${Ads.renderInline('shopping-inline-' + index)}</div>`;
+      }
+    });
+    container.innerHTML = html;
+    UI.refreshIcons();
+  },
+
+  recipeModal(recipeId) {
+    const r = UI.getRecipe(recipeId);
+    if (!r) return;
+    const ed = ESTADOS.find(e => e.id === r.sintoma);
+    const esFav = State.favoritos.includes(r.id);
+    const c = document.getElementById('recipe-modal-content');
+    c.innerHTML = `<div class="relative h-32 bg-gradient-to-br from-vital-100 to-mineral flex items-center justify-center">
+      <div class="w-14 h-14 rounded-2xl bg-white shadow flex items-center justify-center"><i data-lucide="${ed.icon}" class="w-7 h-7 text-vital"></i></div>
+      <button onclick="App.closeModal()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:bg-white"><i data-lucide="x" class="w-5 h-5 text-pizarra"></i></button>
+    </div>
+    <div class="p-6">
+      <div class="flex items-center gap-2 mb-2"><span class="px-2.5 py-1 rounded-md bg-vital-50 text-vital text-xs font-bold">${ed.nombre}</span></div>
+      <h2 class="text-xl font-extrabold text-pizarra mb-2">${r.nombre}</h2>
+      <div class="bg-vital-50 rounded-xl p-3 mb-4 flex items-start gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-vital flex-shrink-0 mt-0.5"></i><p class="text-sm text-pizarra-700">${r.beneficioClave}</p></div>
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="text-center p-3 rounded-xl bg-mineral"><i data-lucide="clock" class="w-5 h-5 text-vital mx-auto mb-1"></i><p class="text-lg font-extrabold">${r.tiempoMinutos}</p><p class="text-[10px] text-pizarra-500">Minutos</p></div>
+        <div class="text-center p-3 rounded-xl bg-mineral"><i data-lucide="users" class="w-5 h-5 text-vital mx-auto mb-1"></i><p class="text-lg font-extrabold">${r.porciones}</p><p class="text-[10px] text-pizarra-500">Porciones</p></div>
+        <div class="text-center p-3 rounded-xl bg-mineral"><i data-lucide="flame" class="w-5 h-5 text-vitamina mx-auto mb-1"></i><p class="text-lg font-extrabold">${r.calorias}</p><p class="text-[10px] text-pizarra-500">Calorías</p></div>
+      </div>
+      <div class="mb-5"><h3 class="font-bold text-pizarra mb-3 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4 text-vital"></i>Ingredientes</h3>
+        <ul class="space-y-2">${r.ingredientes.map(ing => `<li class="flex justify-between items-center text-sm border-b border-mineral-border pb-2">
+          <span class="font-medium text-pizarra">${ing.item}</span>
+          <span class="text-pizarra-500 font-semibold">${ing.cantidad}</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="App.toggleFav('${r.id}'); App.abrirDetalle('${r.id}')" class="flex-1 py-2.5 rounded-xl border border-mineral-border font-semibold text-sm hover:border-vitamina hover:text-vitamina transition flex items-center justify-center gap-2"><i data-lucide="heart" class="w-4 h-4 ${esFav?'text-vitamina heart-filled':'text-pizarra-400'}"></i>${esFav?'Quitar':'Favorito'}</button>
+        <button onclick="App.iniciarCocina('${r.id}')" class="flex-1 py-2.5 rounded-xl bg-vital text-white font-bold text-sm hover:bg-vital-700 transition flex items-center justify-center gap-2"><i data-lucide="chef-hat" class="w-4 h-4"></i>Cocinar ahora</button>
+      </div>
+    </div>`;
+    document.getElementById('recipe-modal').classList.remove('hidden');
+    UI.refreshIcons();
+  },
+};
+
+// ===============================================================
+// APP
+// ===============================================================
+const App = {
+  async init() {
+    await Store.cargar();
+    Pomodoro.init();
+    NoiseGen.init();
+    document.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => this.navigate(b.dataset.nav)));
+    document.getElementById('floating-toggle').addEventListener('click', () => this.toggleFloating(true));
+    document.getElementById('floating-close').addEventListener('click', () => this.toggleFloating(false));
+    document.getElementById('floating-overlay').addEventListener('click', () => this.toggleFloating(false));
+    document.getElementById('btn-complete-cooking').addEventListener('click', () => { UI.toast('Receta completada. Buen provecho.','success'); this.navigate('home'); });
+    document.getElementById('servings-decrease').addEventListener('click', () => this.cambiarPorciones(-1));
+    document.getElementById('servings-increase').addEventListener('click', () => this.cambiarPorciones(1));
+    document.getElementById('btn-clear-shopping').addEventListener('click', () => this.clearShopping());
+    document.getElementById('recipe-modal-backdrop').addEventListener('click', () => this.closeModal());
+    Render.estados();
+    this.navigate('home');
+  },
+
+  navigate(vista) {
+    State.vistaActual = vista;
+    ['home','recipes','cooking','shopping'].forEach(v => {
+      const el = document.getElementById(`view-${v}`);
+      if (el) el.classList.add('hidden-view');
+    });
+    const t = document.getElementById(`view-${vista}`);
+    if (t) { t.classList.remove('hidden-view'); t.style.animation='none'; t.offsetHeight; t.style.animation=''; }
+    document.querySelectorAll('[data-nav]').forEach(b => {
+      const active = b.dataset.nav === vista;
+      b.classList.toggle('text-vital', active);
+      b.classList.toggle('font-bold', active);
+    });
+    if (vista === 'home') { Render.estados(); }
+    if (vista === 'recipes') { Render.recipes(); Render.kuzzRecommendation(); }
+    if (vista === 'shopping') Render.shopping();
+    Ads.renderForView(vista);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  selectEstado(estadoId) {
+    State.estadoSeleccionado = estadoId;
+    this.navigate('recipes');
+  },
+
+  toggleFav(id) {
+    const idx = State.favoritos.indexOf(id);
+    if (idx > -1) { State.favoritos.splice(idx, 1); UI.toast('Quitada de favoritos','info'); }
+    else { State.favoritos.push(id); UI.toast('Añadida a favoritos','success'); }
+    Store.saveFavs();
+  },
+
+  abrirDetalle(id) { Render.recipeModal(id); },
+  closeModal() { document.getElementById('recipe-modal').classList.add('hidden'); },
+
+  iniciarCocina(id) {
+    State.currentRecipeId = id;
+    this.closeModal();
+    Render.cooking(id);
+    this.navigate('cooking');
+    // Generar shopping list desde la receta
+    this.generarShopping(id);
+  },
+
+  generarShopping(recipeId) {
+    const r = UI.getRecipe(recipeId);
+    if (!r) return;
+    r.ingredientes.forEach(ing => {
+      const key = ing.item.toLowerCase().trim().replace(/\s+/g, ' ');
+      if (!State.shoppingList[key]) {
+        State.shoppingList[key] = { item: ing.item, cantidad: ing.cantidad, checked: false, productoKosther: ing.productoKosther || false };
+      }
+    });
+    Store.saveShopping();
+  },
+
+  cambiarPorciones(delta) {
+    const nueva = State.cookingServings + delta;
+    if (nueva < 1 || nueva > 50) return;
+    State.cookingServings = nueva;
+    const r = UI.getRecipe(State.currentRecipeId);
+    if (r) Render.renderIngredients(r);
+    UI.refreshIcons();
+  },
+
+  toggleIng(cb, idx) {
+    State.checkedIngredients[idx] = cb.checked;
+    const text = cb.parentElement.querySelector('.cooking-item-text');
+    const qty = cb.parentElement.querySelector('.cooking-item-qty');
+    if (cb.checked) { text?.classList.add('completed-text'); qty?.classList.add('completed-text'); }
+    else { text?.classList.remove('completed-text'); qty?.classList.remove('completed-text'); }
+  },
+
+  toggleStep(cb, idx) {
+    State.checkedSteps[idx] = cb.checked;
+    const text = cb.parentElement.querySelector('.cooking-step-text');
+    const num = document.querySelectorAll('.cooking-step-num')[idx];
+    if (cb.checked) { text?.classList.add('completed-text'); if(num){num.classList.remove('bg-vital');num.classList.add('bg-vitamina');} }
+    else { text?.classList.remove('completed-text'); if(num){num.classList.add('bg-vital');num.classList.remove('bg-vitamina');} }
+  },
+
+  toggleShopping(key) {
+    if (State.shoppingList[key]) {
+      State.shoppingList[key].checked = !State.shoppingList[key].checked;
+      Store.saveShopping();
+      Render.shopping();
+    }
+  },
+
+  clearShopping() {
+    Object.keys(State.shoppingList).forEach(k => State.shoppingList[k].checked = false);
+    Store.saveShopping();
+    Render.shopping();
+    UI.toast('Lista reiniciada','info');
+  },
+
+  toggleFloating(open) {
+    const p = document.getElementById('floating-panel');
+    const o = document.getElementById('floating-overlay');
+    if (open) { p.classList.remove('translate-x-full'); o.classList.remove('hidden'); }
+    else { p.classList.add('translate-x-full'); o.classList.add('hidden'); }
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => { App.init(); lucide.createIcons(); });
+window.App = App; window.Render = Render;
+</script>
+</body>
+</html>
