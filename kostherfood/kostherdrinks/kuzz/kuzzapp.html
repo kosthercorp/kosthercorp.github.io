@@ -88,6 +88,9 @@
       <button id="recipeBookBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Ver receta">
         <i data-lucide="book-open" class="w-4 h-4"></i><span class="hidden sm:inline">Receta</span>
       </button>
+      <button id="dashboardBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Dashboard de producción">
+        <i data-lucide="bar-chart-3" class="w-4 h-4"></i><span class="hidden sm:inline">Dashboard</span>
+      </button>
       <button id="kaneToggleBtn" class="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-full transition" title="Modo Kane">
         <i data-lucide="key-round" class="w-4 h-4"></i><span class="hidden sm:inline">Kane</span>
       </button>
@@ -129,12 +132,18 @@
           </div>
           <h1 class="text-3xl sm:text-5xl font-black leading-tight" id="heroTitle">Hierba Luisa,<br>Maracuyá, Canela,<br>Clavo &amp; Menta</h1>
           <p class="mt-3 text-white/80 text-sm sm:text-base max-w-xl" id="heroDesc">Selecciona el sabor y el volumen de producción.</p>
+
+          <!-- Worker name -->
+          <div class="mt-4">
+            <div class="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Operador / Trabajador</div>
+            <input type="text" id="workerNameInput" placeholder="Escribe tu nombre" class="w-full sm:w-64 bg-white/15 text-white border-2 border-white/30 rounded-xl px-4 py-2 text-sm font-semibold placeholder-white/40 focus:outline-none focus:border-kuzz-orange transition">
+          </div>
           <!-- Volume selector -->
           <div class="mt-6">
             <div class="text-xs font-bold uppercase tracking-widest text-white/70 mb-2">Volumen de producción</div>
             <div id="volumeQuickButtons" class="flex gap-2 mb-2"></div>
             <div class="flex items-center gap-2">
-              <input type="number" id="volumeInput" min="1" step="1" value="4" class="w-24 text-center text-lg font-bold bg-white/15 text-white border-2 border-white/30 rounded-xl px-3 py-2 focus:outline-none focus:border-kuzz-orange transition">
+              <input type="number" id="volumeInput" min="1" step="1" value="6" class="w-24 text-center text-lg font-bold bg-white/15 text-white border-2 border-white/30 rounded-xl px-3 py-2 focus:outline-none focus:border-kuzz-orange transition">
               <span class="text-sm text-white/70">litros (escribe cualquier cantidad)</span>
             </div>
           </div>
@@ -171,8 +180,11 @@
       <div id="shoppingControls" class="hidden mt-4 space-y-2"></div>
       <div id="shoppingRoiPanel" class="mt-4"></div>
       <div id="shoppingActions" class="hidden mt-4 flex items-center gap-2 flex-wrap">
-        <button id="copyListBtn" class="flex items-center gap-2 bg-kuzz-green hover:bg-kuzz-green-light text-white text-xs font-bold px-3 py-2 rounded-full transition">
-          <i data-lucide="share-2" class="w-4 h-4"></i> Copiar para WhatsApp
+        <button id="sendWhatsAppBtn" class="flex items-center gap-2 bg-kuzz-green hover:bg-kuzz-green-light text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-md">
+          <i data-lucide="send" class="w-4 h-4"></i> Enviar a WhatsApp
+        </button>
+        <button id="copyListBtn" class="flex items-center gap-2 bg-kuzz-card dark:bg-kuzz-card-dark border-2 border-kuzz-border dark:border-kuzz-border-dark text-kuzz-black dark:text-kuzz-cream text-xs font-bold px-3 py-2 rounded-full transition">
+          <i data-lucide="clipboard-copy" class="w-4 h-4"></i> Copiar texto
         </button>
         <button id="clearShoppingBtn" class="text-xs text-kuzz-black/50 dark:text-kuzz-cream/50 hover:text-kuzz-orange underline">Desmarcar todo</button>
       </div>
@@ -430,9 +442,9 @@
       <button onclick="closeModal('kanePasswordModal')" class="w-9 h-9 grid place-items-center rounded-full hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="p-5 space-y-4 text-sm sm:text-base">
-      <p class="text-center text-kuzz-black/70 dark:text-kuzz-cream/70">Ingresa la contraseña de Matriz.</p>
-      <input type="password" id="kanePasswordInput" placeholder="Contraseña" class="w-full text-center text-lg font-bold tracking-widest bg-kuzz-cream dark:bg-kuzz-black/40 border-2 border-kuzz-border dark:border-kuzz-border-dark rounded-xl px-4 py-3 focus:outline-none focus:border-kuzz-green dark:focus:border-kuzz-orange transition">
-      <div id="kanePasswordError" class="hidden text-center text-sm font-bold text-red-500">Contraseña incorrecta</div>
+      <p class="text-center text-kuzz-black/70 dark:text-kuzz-cream/70">Ingresa el PIN de 4 dígitos de Matriz.</p>
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" id="kanePasswordInput" placeholder="••••" class="w-full text-center text-2xl font-black tracking-[0.5em] bg-kuzz-cream dark:bg-kuzz-black/40 border-2 border-kuzz-border dark:border-kuzz-border-dark rounded-xl px-4 py-3 focus:outline-none focus:border-kuzz-green dark:focus:border-kuzz-orange transition">
+      <div id="kanePasswordError" class="hidden text-center text-sm font-bold text-red-500">PIN incorrecto</div>
       <button id="kanePasswordConfirmBtn" class="w-full bg-kuzz-green hover:bg-kuzz-green-light text-white font-extrabold py-3 rounded-xl transition">Confirmar</button>
     </div>
   </div>
@@ -454,6 +466,20 @@
 
 <div id="toast" class="hidden fixed bottom-24 left-6 z-[70] bg-kuzz-black text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-2xl max-w-[80vw]"></div>
 
+<!-- MODAL: DASHBOARD -->
+<div id="dashboardModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-3">
+  <div class="bg-kuzz-card dark:bg-kuzz-card-dark rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto kuzz-scroll shadow-2xl scale-in">
+    <div class="bg-kuzz-green text-white p-5 rounded-t-3xl flex items-center justify-between sticky top-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-white/15 grid place-items-center"><i data-lucide="bar-chart-3" class="w-5 h-5"></i></div>
+        <div><div class="text-xs uppercase tracking-widest opacity-70">Producción</div><div class="font-extrabold text-lg">Dashboard</div></div>
+      </div>
+      <button onclick="closeModal('dashboardModal')" class="w-9 h-9 grid place-items-center rounded-full hover:bg-white/15"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 space-y-4 text-sm sm:text-base" id="dashboardContent"></div>
+  </div>
+</div>
+
 <script>
 /* ============================================================ kuzz SOP App ============================================================ */
 
@@ -466,28 +492,27 @@ const fmtGrams = (base, N) => { const v = base*N; return v % 1 === 0 ? `${v} g` 
 const fmtCount = (base, N, unit) => { const v = base*N; const p = v !== 1 ? 's' : ''; return v % 1 === 0 ? `${v} ${unit}${p}` : `${v.toFixed(1)} ${unit}s`; };
 const fmtWater = (base, N) => `${Math.round(base*N).toLocaleString('es-PE')} ml`;
 const fmtFraction = (numerator, N) => { const v = numerator*N; if (v === Math.floor(v)) return `${v} atado${v>1?'s':''}`; const fractions = {0.25:'1/4',0.5:'1/2',0.75:'3/4',1.5:'1.5',2.5:'2.5',3.5:'3.5'}; const key = v % 1; const f = fractions[key] || v.toFixed(2); return `${f} atado${v>1?'s':''}`; };
-const fmtRamas = (perL, N) => { const v = perL*N; const p = v !== 1 ? 's' : ''; return v % 1 === 0 ? `${v} rama${p}` : `${v.toFixed(1)} ramas`; };
+const fmtRamas = (perL, N) => { const v = perL*N; const p = v !== 1 ? 's' : ''; if (v % 1 === 0) return `${v} rama${p}`; const fracMap = {0.25:'1/4',0.5:'1/2',0.75:'3/4',1.25:'1.25',1.5:'1.5',2.5:'2.5'}; const fk = v % 1; const f = fracMap[fk] || v.toFixed(2); return `${f} ramas`; };
 
 /* ---------- 4 Sabores ---------- */
 const FLAVORS = {
   1: {
-    name: 'Hierba Luisa, Maracuyá, Canela, Clavo & Menta',
+    name: 'Hierba Luisa, Maracuyá & Menta',
     shortName: 'Hierba Luisa',
     photo: 'brand/2.jpg',
     icon: 'leaf',
     water: 1060, waterNote: '60 ml extra para evaporación',
-    endulzante: 48, azucar: 47.4, sal: 0.6,
+    endulzante: 48, azucar: 47.5, sal: 0.6,
     getIngredients(N, kane) {
       const items = [
-        { id: 'hl', icon: 'leaf', label: 'Hierba luisa fresca', value: fmtFraction(0.25, N), sub: `~${Math.round(30*N)} g · ${fmtCount(5,N,'rama')} medianas` },
-        { id: 'cn', icon: 'sparkles', label: 'Canela entera', value: fmtRamas(1/3, N), sub: 'para el hervor del agua' },
-        { id: 'cv', icon: 'sparkles', label: 'Clavo de olor', value: fmtCount(1, N, 'clavo'), sub: 'entero, para el hervor' },
-        { id: 'mp', icon: 'citrus', label: 'Maracuyá maduro', value: fmtCount(1, N, 'unidad'), sub: `~${75*N} ml zumo colado` },
-        { id: 'mn', icon: 'sprout', label: 'Menta fresca', value: fmtCount(1, N, 'cogollo'), sub: '1 por botella' },
+        { id: 'hl', icon: 'leaf', label: 'Hierba luisa fresca limpia', value: fmtFraction(0.25, N), sub: `~${Math.round(29*N)} g · cortada en 3 partes, sin bases duras` },
+        { id: 'cn', icon: 'sparkles', label: 'Canela entera en corteza', value: fmtRamas(0.25, N), sub: `${(1.25*N).toFixed(2)} g · rama de 8-10 cm` },
+        { id: 'mp', icon: 'citrus', label: 'Maracuyá maduro', value: fmtCount(1, N, 'unidad'), sub: `${75*N} g · ${75*N} ml zumo colado sin pepas` },
+        { id: 'mn', icon: 'sprout', label: 'Hierbabuena o menta real fresca', value: fmtCount(1, N, 'cogollo'), sub: `${2*N} g · puntas de 4-5 cm sin flores · 1 por botella` },
       ];
       if (kane) {
-        items.push({ id: 'az', icon: 'flask-conical', label: 'Azúcar rubia', value: fmtGrams(47.4, N), sub: 'o compra base de 1,000 g para frasco maestro' });
-        items.push({ id: 'sl', icon: 'flask-conical', label: 'Sal marina fina', value: fmtGrams(0.6, N), sub: 'proporción: 12 g por cada 1,000 g de azúcar' });
+        items.push({ id: 'az', icon: 'flask-conical', label: 'Azúcar rubia', value: fmtGrams(47.5, N), sub: 'o compra base de 1,000 g para frasco maestro' });
+        items.push({ id: 'sl', icon: 'flask-conical', label: 'Sal fina tamizada', value: fmtGrams(0.6, N), sub: 'proporción: 12 g por cada 1,000 g de azúcar' });
       } else {
         items.push({ id: 'ek', icon: 'flask-conical', label: 'Endulzante Kuzz', value: fmtGrams(48, N), sub: '1 sobre por litro · insumo Kuzz' });
       }
@@ -495,107 +520,111 @@ const FLAVORS = {
       return items;
     },
     getSteps(N, kane) {
-      const F = { water: this.water, N, canela: fmtRamas(1/3,N), clavo: fmtCount(1,N,'clavo'), hierba: fmtFraction(0.25,N), hierbaDetail: `~${Math.round(30*N)} g`, maracuyaCount: N, maracuyaJuice: 75*N, kostherSpoons: (2.5*N).toString(), kostherGrams: Math.round(48*N), menta: N, liters: N };
       return [
-        { n:1, phase:'mesa', title:'Poner el agua a hervir', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> de agua a hervor <b>junto con ${F.canela} y ${F.clavo}</b> en la olla tapada a fuego alto.`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:`${fmtWater(this.water,N)} + canela + clavo`, kaneNote:'La canela y el clavo se añaden desde el inicio del hervor porque sus compuestos (cinamaldehído y eugenol) son termoestables y se extraen a 100°C.' },
-        { n:2, phase:'mesa', title:'Lavar la hierba luisa', icon:'leaf', body:'Lava hoja por hoja bajo el chorro. Descarta bases leñosas.', tag:F.hierbaDetail },
-        { n:3, phase:'mesa', title:'Trocear la hierba luisa', icon:'scissors', body:'Troza o dobla en <b>3 partes</b> y deja lista en un plato.', tag:F.hierba },
-        { n:4, phase:'mesa', title:'Lavar los maracuyás', icon:'citrus', body:`Lava las cáscaras de los <b>${N}</b> maracuyá${N>1?'s':''}.`, tag:`${N} unidad${N>1?'es':''}` },
+        { n:1, phase:'mesa', title:'Poner el agua a hervir con canela', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> de agua a hervor <b>junto con ${fmtRamas(0.25,N)} de canela en corteza</b> en la olla tapada a fuego alto.`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:`${fmtWater(this.water,N)} + canela`, kaneNote:'La canela en corteza se añade desde el inicio del hervor porque su compuesto <b>cinamaldehído</b> es termoestable y se extrae de forma óptima a 100°C.' },
+        { n:2, phase:'mesa', title:'Lavar la hierba luisa', icon:'leaf', body:'Lava la hierba luisa <b>hoja por hoja</b> bajo el chorro de agua. Descarta las bases leñosas duras.', tag:`~${Math.round(29*N)} g` },
+        { n:3, phase:'mesa', title:'Trocear la hierba luisa', icon:'scissors', body:'Trocea o dobla la hierba luisa en <b>3 partes</b> y déjala lista en un plato limpio.', tag:fmtFraction(0.25,N) },
+        { n:4, phase:'mesa', title:'Lavar los maracuyás', icon:'citrus', body:`Lava bien las cáscaras de los <b>${N}</b> maracuyá${N>1?'s':''} bajo el chorro de agua.`, tag:`${N} unidad${N>1?'es':''}` },
         { n:5, phase:'mesa', title:'Cortar los maracuyás', icon:'slice', body:`Corta los <b>${N}</b> maracuyá${N>1?'s':''} por la mitad.`, tag:'por la mitad' },
-        { n:6, phase:'mesa', title:'Extraer la pulpa', icon:'soup', body:'Extrae la pulpa con cuchara sobre el colador fino.', tag:'sobre colador fino' },
-        { n:7, phase:'mesa', title:'Filtrar el zumo puro', icon:'filter', body:`Filtra y presiona para obtener <b>${75*N} ml</b> de zumo sin pepas negras.`, tag:`${75*N} ml de zumo` },
-        { n:8, phase:'mesa', title:'Medir el Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(48,N)}</b> de Endulzante Kuzz.` : `Toma <b>${N} sobre${N>1?'s':''} de Endulzante Kuzz</b> (${Math.round(48*N)} g).`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
-        { n:9, phase:'post', title:'Colar la infusión caliente', icon:'filter', body:'Pasa la infusión por el colador fino hacia la jarra. Descarta la hierba, canela y clavo.', locked:true },
-        { n:10, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(48,N)}</b> de Endulzante Kuzz en el líquido caliente. Deja enfriar.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz en el líquido caliente. Deja enfriar.`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, locked:true },
-        { n:11, phase:'post', title:'Integrar el zumo de maracuyá', icon:'citrus', body:`Integra <b>${75*N} ml</b> de zumo <b>cuando la infusión esté fría</b>. Mezcla bien.`, tag:`${75*N} ml · en frío`, locked:true },
-        { n:12, phase:'post', title:'Activar la menta', icon:'sprout', body:`Da una palmada a cada cogollo e introduce <b>1 cogollo</b> por botella.`, tag:`${N} cogollo${N>1?'s':''}`, locked:true },
-        { n:13, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella con tapa precinto y refrigera.', tag:'sellado y refrigerado', locked:true },
-        { n:14, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código y guarda en el historial.', locked:true, isFinal:true }
+        { n:6, phase:'mesa', title:'Extraer la pulpa', icon:'soup', body:'Extrae toda la pulpa con una cuchara, vaciándola sobre el colador fino apoyado en un vaso o jarra.', tag:'sobre colador fino' },
+        { n:7, phase:'mesa', title:'Filtrar el zumo puro', icon:'filter', body:`Filtra y presiona la pulpa con el dorso de la cuchara para obtener <b>${75*N} ml</b> de zumo puro sin pepas negras.`, tag:`${75*N} ml de zumo` },
+        { n:8, phase:'mesa', title:'Medir el Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(47.5,N)}</b> de azúcar rubia + <b>${fmtGrams(0.6,N)}</b> de sal fina (Endulzante Kuzz).` : `Toma <b>${N} sobre${N>1?'s':''} de Endulzante Kuzz</b> (${Math.round(48*N)} g).`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
+        { n:9, phase:'post', title:'Colar la infusión caliente', icon:'filter', body:'Pasa la infusión caliente por el colador fino hacia la jarra principal. Descarta la hierba luisa y la canela.', locked:true, kaneNote:'El colado inmediato tras los 7 minutos de infusión detiene la extracción. Si se deja más tiempo, los taninos se sobre-extraen y la infusión amarga.' },
+        { n:10, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(47.5,N)} de azúcar rubia + ${fmtGrams(0.6,N)} de sal fina</b> en el líquido caliente. Revuelve hasta disolver. Deja enfriar destapado.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz en el líquido caliente. Revuelve. Deja enfriar destapado.`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, locked:true, kaneNote:'La disolución en caliente aprovecha la alta solubilidad del azúcar. El enfriamiento destapado permite que evaporen notas herbales verdes no deseadas.' },
+        { n:11, phase:'post', title:'Integrar el zumo de maracuyá en frío', icon:'citrus', body:`Integra <b>${75*N} ml</b> de zumo puro de maracuyá <b>cuando la infusión ya esté fría</b>. Mezcla bien.`, tag:`${75*N} ml · en frío`, locked:true, kaneNote:'El zumo de maracuyá contiene fenoles y vitamina C termosensibles. Al integrarlo en frío se evita la oxidación y se conserva el color brillante y la acidez fresca.' },
+        { n:12, phase:'post', title:'Activar la hierbabuena y envasar', icon:'sprout', body:`Da una palmada firme a cada cogollo de hierbabuena (${2*N} g) para activar su aroma e introduce <b>1 cogollo</b> dentro de cada botella limpia.`, tag:`${N} cogollo${N>1?'s':''} · ${2*N} g`, locked:true, kaneNote:'La palmada rompe los tricomas glandulares liberando cristales de <b>mentol</b> que activan los receptores <b>TRPM8</b> (sensación de frescor) sin necesidad de masticar la hoja.' },
+        { n:13, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con el embudo, sella con tapa precinto y refrigera de inmediato.', tag:'sellado y refrigerado', locked:true },
+        { n:14, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código de lote, revisa el resumen y guarda en el historial.', locked:true, isFinal:true }
       ];
     },
     hornilla: {
-      preAlert: '¡APAGA LA HORNILLA AHORA! Echa la hierba luisa troceada, la canela y el clavo en el agua hervida y tapa herméticamente.',
-      technique: '<b>Técnica:</b> la hierba luisa <b>NO se hierve</b>. Se infusiona en agua recién hervida con fuego apagado para preservar el <i>citral</i>.',
-      confirmAdded: 'Ya apagué la hornilla, eché la hierba luisa, la canela y el clavo, y tapé la olla.',
+      preAlert: '¡APAGA LA HORNILLA AHORA! Echa la hierba luisa troceada en el agua hervida con canela y tapa la olla herméticamente.',
+      technique: '<b>Técnica correcta:</b> la hierba luisa <b>NO se hierve</b>. Se infusiona en el agua recién hervida con el fuego apagado para preservar el aceite esencial <i>citral</i> y evitar que amargue.',
+      confirmAdded: 'Ya apagué la hornilla, eché la hierba luisa troceada y tapé la olla herméticamente.',
       startBtnText: 'Iniciar infusión sellada · 7:00 min',
       phases: [
-        { duration: 420, label: 'Infusión sellada', fire: 'apagado', desc: 'Las hojas liberan aroma con calor residual. No destapar. El citral se preserva al no hervir.' }
+        { duration: 420, label: 'Infusión sellada', fire: 'apagado', desc: 'Las hojas liberan su aroma con el calor residual. No destapar. El citral se preserva al no hervir.' }
       ],
       alarmTitle: '¡INFUSIÓN COMPLETADA!',
-      alarmAction: 'Retira la hierba luisa, la canela y el clavo ahora',
-      confirmRemoved: 'Ya retiré toda la hierba luisa, la canela y el clavo de la olla con la espumadera.'
+      alarmAction: 'Retira la hierba luisa y la canela ahora',
+      confirmRemoved: 'Ya retiré toda la hierba luisa y la canela de la olla con la espumadera.'
     },
     masterRecipe: {
-      title: 'Hierba Luisa, Maracuyá, Canela, Clavo & Menta', subtitle: 'Fórmula Matriz desde cero', icon: 'leaf', color: 'green',
+      title: 'Hierba Luisa, Maracuyá & Menta', subtitle: 'Fórmula Insignia desde cero', icon: 'leaf', color: 'green',
       sections: [
-        { heading: 'Cantidades por litro', items: ['Hierba luisa fresca: 28-30 g (5-6 ramas)', 'Agua purificada: 1,060 ml', 'Canela: 1/3 rama', 'Clavo de olor: 1 clavo', 'Maracuyá: 1 unidad (~75 ml zumo)', 'Endulzante Kuzz: 48 g (47.4 g azúcar + 0.6 g sal)', 'Menta: 1 cogollo por botella'] },
-        { heading: 'Técnica (NO hervir la hierba)', body: 'Hervir agua con canela y clavo. Apagar fuego, añadir hierba luisa, tapar e infusionar 7 min. Retirar sólidos. Disolver endulzante en caliente. Enfriar. Integrar zumo de maracuyá en frío.' },
-        { heading: 'Canela + Clavo (análisis organoléptico)', body: 'La <b>canela</b> aporta <b>cinamaldehído</b> (cálido, dulce, amaderado) y el <b>clavo</b> aporta <b>eugenol</b> (picante, profundo). Ambos termoestables, se extraen a 100°C. El clavo es ~10x más potente, por eso 1 clavo por litro vs 1/3 rama de canela.' },
-        { heading: 'Citral de la hierba luisa', body: 'El <b>citral</b> es volátil y se degrada >80°C. NO hervir la hierba. La infusión a 90°C descendente preserva el citral y evita taninos amargos.' },
-        { heading: 'Maracuyá en frío', body: 'Los fenoles y vitamina C del zumo se oxidan con calor. Integrar en frío conserva el perfil tropical y el color brillante.' },
-        { heading: 'Menta y TRPM8', body: 'La palmada rompe tricomas liberando <b>mentol</b> que activa receptores <b>TRPM8</b> (frescor) sin masticar la hoja.' }
+        { heading: 'Cantidades por litro', items: ['Hierba luisa fresca limpia: 0.25 atado (~29 g)', 'Canela entera en corteza: 0.25 rama (1.25 g)', 'Maracuyá maduro: 1 unidad (75 g / 75 ml zumo)', 'Hierbabuena o menta real: 1 cogollo (2 g)', 'Endulzante Kuzz: 48 g (47.5 g azúcar rubia + 0.6 g sal fina)', 'Agua: 1,060 ml', 'Botellas PET 1L: 1 por litro'] },
+        { heading: 'Técnica (NO hervir la hierba luisa)', body: 'Hervir agua con canela en corteza. Apagar fuego, añadir hierba luisa troceada, tapar herméticamente e infusionar 7 min. Colar fino. Disolver endulzante en caliente. Enfriar destapado. Integrar zumo de maracuyá en frío. Palmear hierbabuena por botella. Envasar.' },
+        { heading: 'Citral de la hierba luisa', body: 'El <b>citral</b> es el aceite esencial responsable del aroma cítrico de la hierba luisa. Es volátil y se degrada >80°C. <b>NO hervir</b> la hierba. La infusión sellada a fuego apagado (~90°C descendente) preserva el citral y evita la liberación de taninos amargos.' },
+        { heading: 'Canela en corteza (cinamaldehído)', body: 'La canela en corteza contiene <b>cinamaldehído</b>, termoestable. Se añade desde el inicio del hervor para extraer sus notas cálidas y amaderadas a 100°C. 0.25 rama por litro es la dosis óptima sin dominar el perfil cítrico de la hierba luisa.' },
+        { heading: 'Maracuyá en frío', body: 'El zumo de maracuyá contiene fenoles y vitamina C que se oxidan con el calor. Al integrarlo cuando la infusión está fría se conserva el perfil tropical, la acidez fresca y el color amarillo brillante.' },
+        { heading: 'Hierbabuena y TRPM8', body: 'La palmada firme rompe los tricomas glandulares de la hoja liberando cristales de <b>mentol</b>. El mentol activa los receptores <b>TRPM8</b> (cold-sensitive receptors) de la mucosa oral, generando la sensación de frescor sin necesidad de masticar la hoja entera.' }
       ]
     }
   },
 
   2: {
-    name: 'Flor de Jamaica "Tutti-Frutti"',
+    name: 'Flor de Jamaica Frutal',
     shortName: 'Flor de Jamaica',
     photo: 'brand/3.jpg',
     icon: 'flower-2',
-    water: 1120, waterNote: '120 ml extra para evaporación',
-    endulzante: 52, azucar: 51.4, sal: 0.6,
+    water: 1100, waterNote: '100 ml extra para evaporación',
+    endulzante: 54.4, azucar: 53.8, sal: 0.6,
     getIngredients(N, kane) {
       const items = [
-        { id: 'fj', icon: 'flower-2', label: 'Flor de Jamaica seca', value: fmtGrams(25, N), sub: 'calyx seco, sin tallos' },
-        { id: 'pi', icon: 'apple', label: 'Piña madura (cáscara+pulpa)', value: fmtGrams(60, N), sub: 'limpia, sin ojos' },
-        { id: 'mb', icon: 'circle-dot', label: 'Membrillo', value: fmtGrams(40, N), sub: 'en láminas' },
-        { id: 'cn', icon: 'sparkles', label: 'Canela entera', value: fmtRamas(0.5, N), sub: 'para el hervor' },
-        { id: 'cv', icon: 'sparkles', label: 'Clavo de olor', value: fmtCount(1, N, 'clavo'), sub: 'entero' },
-        { id: 'lm', icon: 'citrus', label: 'Limón sutil', value: fmtCount(0.5, N, 'limón'), sub: `~${10*N} ml zumo (en frío)` },
+        { id: 'pi', icon: 'apple', label: 'Piña madura (cáscara y corazón)', value: fmtGrams(87.5, N), sub: 'lavada con escobilla, picada' },
+        { id: 'mz', icon: 'apple', label: 'Manzana Delicia roja', value: fmtGrams(50, N), sub: 'en láminas con cáscara, sin corazón' },
+        { id: 'cn', icon: 'sparkles', label: 'Canela entera en corteza', value: fmtRamas(0.5, N), sub: `${(2.5*N).toFixed(1)} g · ramas de 8-10 cm` },
+        { id: 'cv', icon: 'sparkles', label: 'Clavo de olor entero', value: fmtCount(0.5, N, 'clavo'), sub: `${(0.13*N).toFixed(2)} g` },
+        { id: 'fj', icon: 'flower-2', label: 'Flor de Jamaica seca', value: fmtGrams(21.25, N), sub: 'calyx seco, sin tallos' },
+        { id: 'lm', icon: 'citrus', label: 'Limón sutil', value: fmtCount(0.25, N, 'limón'), sub: `${5*N} ml zumo colado en frío` },
+        { id: 'vn', icon: 'droplet', label: 'Esencia de vainilla (opcional)', value: `${(0.6*N).toFixed(1)} ml`, sub: 'toque tipo chicle, opcional' },
       ];
-      if (kane) { items.push({ id:'az', icon:'flask-conical', label:'Azúcar rubia', value:fmtGrams(51.4,N), sub:'o base de 1,000 g para frasco maestro' }); items.push({ id:'sl', icon:'flask-conical', label:'Sal marina fina', value:fmtGrams(0.6,N), sub:'12 g por cada 1,000 g de azúcar' }); }
-      else { items.push({ id:'ek', icon:'flask-conical', label:'Endulzante Kuzz', value:fmtGrams(52,N), sub:'1 sobre por litro' }); }
+      if (kane) {
+        items.push({ id: 'az', icon: 'flask-conical', label: 'Azúcar rubia', value: fmtGrams(53.8, N), sub: 'o compra base de 1,000 g para frasco maestro' });
+        items.push({ id: 'sl', icon: 'flask-conical', label: 'Sal fina tamizada', value: fmtGrams(0.6, N), sub: 'proporción: 12 g por cada 1,000 g de azúcar' });
+      } else {
+        items.push({ id: 'ek', icon: 'flask-conical', label: 'Endulzante Kuzz', value: fmtGrams(54.4, N), sub: '1 sobre por litro · insumo Kuzz' });
+      }
       items.push({ id: 'bt', icon: 'wine', label: 'Botellas PET 1L', value: fmtCount(1, N, 'botella'), sub: 'con tapa precinto' });
       return items;
     },
     getSteps(N, kane) {
       return [
-        { n:1, phase:'mesa', title:'Lavar y preparar piña', icon:'apple', body:`Lava <b>1 piña madura</b>. Corta cáscara con pulpa (${fmtGrams(60,N)}).`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:fmtGrams(60,N) },
-        { n:2, phase:'mesa', title:'Lavar y laminar membrillo', icon:'circle-dot', body:`Lava el membrillo y corta <b>${fmtGrams(40,N)}</b> en láminas.`, tag:fmtGrams(40,N) },
-        { n:3, phase:'mesa', title:'Poner agua a hervir con frutas', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> a hervor con piña, membrillo, ${fmtRamas(0.5,N)} de canela y ${fmtCount(1,N,'clavo')}. Tapa parcial.`, tag:`${fmtWater(this.water,N)}` },
-        { n:4, phase:'mesa', title:'Lavar flor de Jamaica', icon:'flower-2', body:`Lava <b>${fmtGrams(25,N)}</b> de flor de Jamaica seca bajo chorro rápido.`, tag:fmtGrams(25,N) },
-        { n:5, phase:'mesa', title:'Exprimir limón', icon:'citrus', body:`Exprime ${fmtCount(0.5,N,'limón')} y reserva <b>${10*N} ml</b> de zumo para integrar en frío.`, tag:`${10*N} ml zumo` },
-        { n:6, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(52,N)}</b> de Endulzante Kuzz.` : `Toma <b>${N} sobre${N>1?'s':''}</b> de Endulzante Kuzz (${Math.round(52*N)} g).`, tag: kane ? fmtGrams(52,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
-        { n:7, phase:'post', title:'Colar la infusión caliente', icon:'filter', body:'Cola la infusión hacia la jarra. Descarta todos los sólidos.', locked:true },
-        { n:8, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(52,N)}</b> en el líquido caliente. Enfría.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz. Enfría.`, tag: kane ? fmtGrams(52,N) : `${N} sobre${N>1?'s':''}`, locked:true },
-        { n:9, phase:'post', title:'Integrar zumo de limón en frío', icon:'citrus', body:`Cuando esté frío, integra <b>${10*N} ml</b> de zumo de limón. Mezcla.`, tag:`${10*N} ml · en frío`, locked:true },
-        { n:10, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella y refrigera.', tag:'sellado', locked:true },
-        { n:11, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código y guarda.', locked:true, isFinal:true }
+        { n:1, phase:'mesa', title:'Lavar y picar piña', icon:'apple', body:`Lava <b>1 piña madura</b> con escobilla. Corta cáscara y corazón picados (<b>${fmtGrams(87.5,N)}</b>).`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:fmtGrams(87.5,N) },
+        { n:2, phase:'mesa', title:'Laminar manzana Delicia', icon:'apple', body:`Lava la manzana Delicia roja y corta <b>${fmtGrams(50,N)}</b> en láminas con cáscara, sin corazón.`, tag:fmtGrams(50,N) },
+        { n:3, phase:'mesa', title:'Poner agua a hervir con frutas y especias', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> a hervor con piña, manzana, ${fmtRamas(0.5,N)} de canela y ${fmtCount(0.5,N,'clavo')}. Tapa parcial.`, tag:fmtWater(this.water,N) },
+        { n:4, phase:'mesa', title:'Lavar flor de Jamaica', icon:'flower-2', body:`Lava <b>${fmtGrams(21.25,N)}</b> de flor de Jamaica seca bajo chorro rápido.`, tag:fmtGrams(21.25,N) },
+        { n:5, phase:'mesa', title:'Exprimir limón', icon:'citrus', body:`Exprime ${fmtCount(0.25,N,'limón')} y reserva <b>${5*N} ml</b> de zumo para integrar en frío.`, tag:`${5*N} ml zumo` },
+        { n:6, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(53.8,N)} de azúcar rubia + ${fmtGrams(0.6,N)} de sal fina</b>.` : `Toma <b>${N} sobre${N>1?'s':''} de Endulzante Kuzz</b> (${Math.round(54.4*N)} g).`, tag: kane ? fmtGrams(54.4,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
+        { n:7, phase:'post', title:'Colar la infusión caliente', icon:'filter', body:'Cola la infusión hacia la jarra. Descarta todos los sólidos (piña, manzana, canela, clavo y flor de jamaica).', locked:true },
+        { n:8, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(53.8,N)} de azúcar + ${fmtGrams(0.6,N)} de sal</b> en el líquido caliente. Enfría por completo.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz en el líquido caliente. Enfría por completo.`, tag: kane ? fmtGrams(54.4,N) : `${N} sobre${N>1?'s':''}`, locked:true },
+        { n:9, phase:'post', title:'Integrar zumo de limón y vainilla en frío', icon:'citrus', body:`Cuando esté frío, integra <b>${5*N} ml</b> de zumo de limón${N>0 ? ' y vainilla opcional' : ''}. Mezcla bien.`, tag:`${5*N} ml · en frío`, locked:true, kaneNote:'El zumo de limón se añade en frío para preservar la vitamina C y evitar que el calor amargue los aceites cítricos. La vainilla opcional aporta un toque tipo chicle.' },
+        { n:10, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella con tapa precinto y refrigera de inmediato.', tag:'sellado y refrigerado', locked:true },
+        { n:11, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código de lote, revisa el resumen y guarda en el historial.', locked:true, isFinal:true }
       ];
     },
     hornilla: {
-      preAlert: 'Pon a hervir el agua con piña, membrillo, canela y clavo. Cuando rompa el hervor, confirma para iniciar el timer.',
-      technique: '<b>Proceso Tutti-Frutti:</b> 3 fases de fuego. Hervor activo con frutas, luego con flor de jamaica, luego reposo sellado.',
-      confirmAdded: 'Ya el agua está hirviendo con piña, membrillo, canela y clavo.',
-      startBtnText: 'Iniciar hervor con frutas · 8:00 min',
+      preAlert: 'Pon a hervir el agua con piña, manzana Delicia, canela y clavo. Cuando rompa el hervor, confirma para iniciar el timer.',
+      technique: '<b>Proceso Frutal:</b> 3 fases de fuego. Hervor activo con frutas y especias, luego con flor de jamaica, luego reposo sellado.',
+      confirmAdded: 'Ya el agua está hirviendo con piña, manzana Delicia, canela y clavo.',
+      startBtnText: 'Iniciar hervor con frutas · 12:00 min',
       phases: [
-        { duration: 480, label: 'Hervor con frutas', fire: 'medio', desc: 'Tapa parcial. Mantener hervor activo.', afterAlert: 'Añade la flor de jamaica seca al agua y baja el fuego.' },
-        { duration: 240, label: 'Hervor con jamaica', fire: 'bajo', desc: 'Bajar fuego. Tapa parcial. La flor libera color y acidez.', afterAlert: 'Apaga el fuego completamente y tapa herméticamente.' },
+        { duration: 720, label: 'Hervor con frutas', fire: 'medio', desc: 'Tapa parcial. Mantener hervor activo. Piña y manzana liberan azúcares y aromas.', afterAlert: 'Añade la flor de jamaica seca al agua, húndela y baja el fuego.' },
+        { duration: 300, label: 'Hervor con flor de jamaica', fire: 'bajo', desc: 'Bajar fuego. Tapa parcial. La flor libera color rojo y acidez.', afterAlert: 'Apaga el fuego completamente y tapa herméticamente.' },
         { duration: 180, label: 'Reposo sellado', fire: 'apagado', desc: 'Fuego apagado. Tapar herméticamente. Reposo con calor residual.' }
       ],
       alarmTitle: '¡REPOSO COMPLETADO!',
       alarmAction: 'Colar la infusión ahora',
-      confirmRemoved: 'Ya colé la infusión y retiré todos los sólidos (piña, membrillo, canela, clavo y flor de jamaica).'
+      confirmRemoved: 'Ya colé la infusión y retiré todos los sólidos (piña, manzana, canela, clavo y flor de jamaica).'
     },
     masterRecipe: {
-      title: 'Flor de Jamaica Tutti-Frutti', subtitle: 'Fórmula Matriz desde cero', icon: 'flower-2', color: 'green',
+      title: 'Flor de Jamaica Frutal', subtitle: 'Fórmula Matriz desde cero', icon: 'flower-2', color: 'green',
       sections: [
-        { heading: 'Cantidades por litro', items: ['Flor de Jamaica seca: 25 g', 'Piña (cáscara+pulpa): 60 g', 'Membrillo: 40 g', 'Canela: 1/2 rama', 'Clavo: 1', 'Limón: 1/2 (~10 ml zumo)', 'Endulzante Kuzz: 52 g (51.4 g azúcar + 0.6 g sal)', 'Agua: 1,120 ml'] },
-        { heading: 'Proceso de 3 fases', body: 'Hervir agua+frutas+especias 8 min (tapa parcial). Añadir flor de jamaica, hervir 4 min más (fuego bajo). Apagar, reposar tapado 3 min. Colar. Disolver endulzante en caliente. Enfriar. Integrar zumo de limón en frío.' },
-        { heading: 'Antocianinas de la jamaica', body: 'La flor de jamaica contiene <b>antocianinas</b> (color rojo) y <b>ácido hibístico</b>. El hervor breve (4 min) extrae color y acidez sin amargar. El reposo sellado completa la extracción. Más de 6 min de hervor activo libera taninos amargos.' },
-        { heading: 'Piña y membrillo', body: 'La cáscara de piña aporta <b>bromelina</b> (enzima) y notas tropicales. El membrillo aporta <b>pectina</b> (cuerpo) y dulzor natural. Hervir juntos extrae los aromáticos solubles en agua.' },
-        { heading: 'Limón en frío', body: 'El zumo de limón se añade en frío para preservar la vitamina C y evitar que el calor amargue los aceites cítricos de la cáscara.' }
+        { heading: 'Cantidades por litro', items: ['Piña madura (cáscara y corazón): 87.5 g', 'Manzana Delicia roja: 50 g', 'Canela en corteza: 0.5 rama (2.5 g)', 'Clavo de olor: 0.5 clavo (0.13 g)', 'Flor de Jamaica seca: 21.25 g', 'Limón sutil: 0.25 (5 ml zumo)', 'Esencia de vainilla: 0.6 ml (opcional)', 'Endulzante Kuzz: 54.4 g (53.8 g azúcar + 0.6 g sal)', 'Agua: 1,100 ml'] },
+        { heading: 'Proceso de 3 fases', body: 'Hervir agua+piña+manzana+canela+clavo 12 min (tapa parcial, fuego medio). Añadir flor de jamaica, hervir 5 min más (fuego bajo). Apagar fuego, reposar tapado 3 min. Colar fino. Disolver endulzante en caliente. Enfriar. Integrar zumo de limón y vainilla en frío.' },
+        { heading: 'Antocianinas de la jamaica', body: 'La flor de jamaica contiene <b>antocianinas</b> (color rojo) y <b>ácido hibístico</b>. El hervor breve de 5 min extrae color y acidez sin amargar. El reposo sellado completa la extracción. Más de 8 min de hervor activo con la flor libera taninos amargos.' },
+        { heading: 'Piña y manzana Delicia', body: 'La cáscara y corazón de piña aportan <b>bromelina</b> (enzima) y notas tropicales. La manzana Delicia roja aporta dulzor redondo y <b>pectina</b> (cuerpo). Hervir juntos extrae los aromáticos solubles en agua creando un perfil frutal equilibrado y redondo.' },
+        { heading: 'Limón y vainilla en frío', body: 'El zumo de limón se añade en frío para preservar la vitamina C. La vainilla opcional (0.6 ml/L) aporta un toque tipo chicle que realza el perfil frutal sin dominarlo.' }
       ]
     }
   },
@@ -605,15 +634,19 @@ const FLAVORS = {
     shortName: 'Té Negro Durazno',
     photo: 'brand/4.jpg',
     icon: 'coffee',
-    water: 1080, waterNote: '80 ml extra para evaporación',
-    endulzante: 45, azucar: 44.5, sal: 0.5,
+    water: 1075, waterNote: '75 ml extra para evaporación',
+    endulzante: 46.8, azucar: 46.25, sal: 0.55,
     getIngredients(N, kane) {
       const items = [
-        { id: 'tn', icon: 'coffee', label: 'Té negro', value: `${(3.5*N).toFixed(1)} sobres`, sub: `o ${fmtGrams(7,N)} en hebras` },
-        { id: 'dz', icon: 'apple', label: 'Duraznos maduros', value: fmtCount(1.5, N, 'durazno'), sub: `~${Math.round(150*N)} g picados con cáscara` },
+        { id: 'dz', icon: 'apple', label: 'Duraznos maduros', value: fmtCount(1.5, N, 'durazno'), sub: `${Math.round(150*N)} g picados con cáscara, sin pepa` },
+        { id: 'tn', icon: 'coffee', label: 'Té negro en sobres', value: `${(3.5*N).toFixed(1)} sobres`, sub: `${fmtGrams(7,N)} en hebras` },
       ];
-      if (kane) { items.push({ id:'az', icon:'flask-conical', label:'Azúcar rubia', value:fmtGrams(44.5,N), sub:'o base de 1,000 g para frasco maestro' }); items.push({ id:'sl', icon:'flask-conical', label:'Sal marina fina', value:fmtGrams(0.5,N), sub:'12 g por cada 1,000 g de azúcar' }); }
-      else { items.push({ id:'ek', icon:'flask-conical', label:'Endulzante Kuzz', value:fmtGrams(45,N), sub:'1 sobre por litro' }); }
+      if (kane) {
+        items.push({ id: 'az', icon: 'flask-conical', label: 'Azúcar rubia', value: fmtGrams(46.25, N), sub: 'o compra base de 1,000 g para frasco maestro' });
+        items.push({ id: 'sl', icon: 'flask-conical', label: 'Sal fina tamizada', value: fmtGrams(0.55, N), sub: 'proporción: 12 g por cada 1,000 g de azúcar' });
+      } else {
+        items.push({ id: 'ek', icon: 'flask-conical', label: 'Endulzante Kuzz', value: fmtGrams(46.8, N), sub: '1 sobre por litro · insumo Kuzz' });
+      }
       items.push({ id: 'bt', icon: 'wine', label: 'Botellas PET 1L', value: fmtCount(1, N, 'botella'), sub: 'con tapa precinto' });
       return items;
     },
@@ -623,34 +656,34 @@ const FLAVORS = {
         { n:2, phase:'mesa', title:'Picar duraznos con cáscara', icon:'slice', body:`Pica <b>${Math.round(150*N)} g</b> de duraznos con cáscara, sin pepa.`, tag:`${Math.round(150*N)} g` },
         { n:3, phase:'mesa', title:'Poner agua a hervir con duraznos', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> a hervor con los duraznos picados. Tapa parcial.`, tag:fmtWater(this.water,N) },
         { n:4, phase:'mesa', title:'Preparar el té negro', icon:'coffee', body:`Prepara <b>${(3.5*N).toFixed(1)} sobres</b> de té negro (o ${fmtGrams(7,N)} en hebras).`, tag:`${(3.5*N).toFixed(1)} sobres` },
-        { n:5, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(45,N)}</b> de Endulzante Kuzz.` : `Toma <b>${N} sobre${N>1?'s':''}</b> de Endulzante Kuzz (${Math.round(45*N)} g).`, tag: kane ? fmtGrams(45,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
-        { n:6, phase:'post', title:'Retirar té y colar duraznos', icon:'filter', body:'Retira el té <b>sin exprimir</b> (evita amargor). Cola los duraznos hacia la jarra.', locked:true },
-        { n:7, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(45,N)}</b> en el líquido caliente. Enfría.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz. Enfría.`, tag: kane ? fmtGrams(45,N) : `${N} sobre${N>1?'s':''}`, locked:true },
-        { n:8, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella y refrigera.', tag:'sellado', locked:true },
-        { n:9, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código y guarda.', locked:true, isFinal:true }
+        { n:5, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(46.25,N)} de azúcar rubia + ${fmtGrams(0.55,N)} de sal fina</b>.` : `Toma <b>${N} sobre${N>1?'s':''} de Endulzante Kuzz</b> (${Math.round(46.8*N)} g).`, tag: kane ? fmtGrams(46.8,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
+        { n:6, phase:'post', title:'Retirar té y colar duraznos', icon:'filter', body:'Retira los sobres de té <b>sin exprimir</b> (evita amargor por taninos). Cola los duraznos suavemente sin enturbiar hacia la jarra.', locked:true, kaneNote:'Exprimir los sobres de té libera taninos amargos. Retirarlos sin exprimir y colar suavemente los duraznos mantiene el perfil limpio.' },
+        { n:7, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(46.25,N)} de azúcar + ${fmtGrams(0.55,N)} de sal</b> en el líquido caliente. Enfría.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz en el líquido caliente. Enfría.`, tag: kane ? fmtGrams(46.8,N) : `${N} sobre${N>1?'s':''}`, locked:true },
+        { n:8, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella con tapa precinto y refrigera de inmediato.', tag:'sellado y refrigerado', locked:true },
+        { n:9, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código de lote, revisa el resumen y guarda en el historial.', locked:true, isFinal:true }
       ];
     },
     hornilla: {
       preAlert: 'Pon a hervir el agua con los duraznos picados. Cuando rompa el hervor, confirma para iniciar el timer.',
-      technique: '<b>Proceso:</b> Hervor activo con duraznos 6 min. Luego apagar, sumergir té y infusionar 4 min tapado.',
+      technique: '<b>Proceso:</b> Hervor activo con duraznos 8 min. Luego apagar, sumergir té y infusionar 4 min tapado.',
       confirmAdded: 'Ya el agua está hirviendo con los duraznos picados.',
-      startBtnText: 'Iniciar hervor con duraznos · 6:00 min',
+      startBtnText: 'Iniciar hervor con duraznos · 8:00 min',
       phases: [
-        { duration: 360, label: 'Hervor con duraznos', fire: 'medio', desc: 'Tapa parcial. Los duraznos liberan azúcares y aroma.', afterAlert: 'Apaga el fuego completamente. Sumerge el té negro y tapa herméticamente.' },
-        { duration: 240, label: 'Infusión de té', fire: 'apagado', desc: 'Fuego apagado. Tapar herméticamente. No exprimir el té al retirar.' }
+        { duration: 480, label: 'Hervor con duraznos', fire: 'medio', desc: 'Tapa parcial. Los duraznos liberan azúcares, pectina y aroma.', afterAlert: 'Apaga el fuego completamente. Sumerge los sobres de té negro y tapa herméticamente.' },
+        { duration: 240, label: 'Infusión de té', fire: 'apagado', desc: 'Fuego apagado. Tapar herméticamente. No exprimir los sobres al retirar.' }
       ],
       alarmTitle: '¡INFUSIÓN COMPLETADA!',
       alarmAction: 'Retira el té sin exprimir y colar los duraznos',
-      confirmRemoved: 'Ya retiré el té sin exprimir y colé los duraznos.'
+      confirmRemoved: 'Ya retiré el té sin exprimir y colé los duraznos suavemente.'
     },
     masterRecipe: {
       title: 'Té Negro con Durazno', subtitle: 'Fórmula Matriz desde cero', icon: 'coffee', color: 'green',
       sections: [
-        { heading: 'Cantidades por litro', items: ['Té negro: 3.5 sobres (7 g hebras)', 'Duraznos maduros: 1.5 unidades (~150 g)', 'Endulzante Kuzz: 45 g (44.5 g azúcar + 0.5 g sal)', 'Agua: 1,080 ml'] },
-        { heading: 'Proceso de 2 fases', body: 'Hervir agua+duraznos 6 min (tapa parcial). Apagar fuego, sumergir té, tapar hermético e infusionar 4 min. Retirar té sin exprimir. Colar duraznos. Disolver endulzante en caliente. Enfriar. Envasar.' },
-        { heading: 'Taninos del té negro', body: 'El té negro contiene <b>taninos</b> que se sobre-extraen si se infusiona más de 4-5 min o si se exprime la bolsita. Esto genera amargor. Por eso se retira sin exprimir y el tiempo es controlado.' },
-        { heading: 'Duraznos con cáscara', body: 'La cáscara del durazno contiene aromáticos y pectina. Hervir con cáscara extrae más sabor que pelar. Sin pepa para evitar amargor.' },
-        { heading: 'Polifenoles del té negro', body: 'Los <b>polifenoles</b> (teofilinas, catequinas) se oxidan con hervor prolongado. La infusión a fuego apagado (~90°C) preserva el perfil correcto.' }
+        { heading: 'Cantidades por litro', items: ['Duraznos maduros: 1.5 unidades (150 g)', 'Té negro: 3.5 sobres (7 g hebras)', 'Endulzante Kuzz: 46.8 g (46.25 g azúcar + 0.55 g sal)', 'Agua: 1,075 ml'] },
+        { heading: 'Proceso de 2 fases', body: 'Hervir agua+duraznos 8 min (tapa parcial, fuego medio). Apagar fuego, sumergir sobres de té, tapar hermético e infusionar 4 min. Retirar té sin exprimir. Colar duraznos suavemente. Disolver endulzante en caliente. Enfriar. Envasar.' },
+        { heading: 'Taninos del té negro', body: 'El té negro contiene <b>taninos</b> que se sobre-extraen si se infusiona más de 4-5 min o si se exprime la bolsita. Esto genera amargor. Por eso se retira sin exprimir y el tiempo es controlado a 4 min exactos.' },
+        { heading: 'Duraznos con cáscara', body: 'La cáscara del durazno contiene aromáticos y pectina que aportan cuerpo. Hervir con cáscara extrae más sabor que pelar. Sin pepa para evitar amargor.' },
+        { heading: 'Polifenoles del té negro', body: 'Los <b>polifenoles</b> (teofilinas, catequinas) se oxidan con hervor prolongado. La infusión a fuego apagado (~90°C descendente) preserva el perfil correcto del té.' }
       ]
     }
   },
@@ -661,39 +694,43 @@ const FLAVORS = {
     photo: 'brand/5.jpg',
     icon: 'leaf',
     water: 1060, waterNote: '60 ml extra para evaporación',
-    endulzante: 48, azucar: 47.4, sal: 0.6,
+    endulzante: 48.1, azucar: 47.5, sal: 0.6,
     getIngredients(N, kane) {
       const items = [
-        { id: 'mu', icon: 'leaf', label: 'Muña (hojas secas)', value: fmtGrams(10, N), sub: `o ${fmtCount(3,N,'ramita')} frescas` },
-        { id: 'nj', icon: 'citrus', label: 'Naranja dulce (piel)', value: fmtCount(0.5, N, 'naranja'), sub: 'solo la parte naranja, sin parte blanca' },
-        { id: 'ki', icon: 'circle-dot', label: 'Kión fresco', value: `${3*N} láminas`, sub: `~${fmtGrams(8,N)} en láminas delgadas` },
+        { id: 'nj', icon: 'citrus', label: 'Naranja dulce (piel)', value: fmtCount(0.5, N, 'naranja'), sub: `${(8.75*N).toFixed(2)} g · solo parte naranja, cero parte blanca` },
+        { id: 'ki', icon: 'circle-dot', label: 'Kión fresco', value: `${3*N} láminas`, sub: `${(7.5*N).toFixed(1)} g · láminas de 2 mm` },
+        { id: 'mu', icon: 'leaf', label: 'Muña seca limpia', value: fmtGrams(6.25, N), sub: `o ${fmtCount(10,N,'g')} de muña fresca` },
       ];
-      if (kane) { items.push({ id:'az', icon:'flask-conical', label:'Azúcar rubia', value:fmtGrams(47.4,N), sub:'o base de 1,000 g para frasco maestro' }); items.push({ id:'sl', icon:'flask-conical', label:'Sal marina fina', value:fmtGrams(0.6,N), sub:'12 g por cada 1,000 g de azúcar' }); }
-      else { items.push({ id:'ek', icon:'flask-conical', label:'Endulzante Kuzz', value:fmtGrams(48,N), sub:'1 sobre por litro' }); }
+      if (kane) {
+        items.push({ id: 'az', icon: 'flask-conical', label: 'Azúcar rubia', value: fmtGrams(47.5, N), sub: 'o compra base de 1,000 g para frasco maestro' });
+        items.push({ id: 'sl', icon: 'flask-conical', label: 'Sal fina tamizada', value: fmtGrams(0.6, N), sub: 'proporción: 12 g por cada 1,000 g de azúcar' });
+      } else {
+        items.push({ id: 'ek', icon: 'flask-conical', label: 'Endulzante Kuzz', value: fmtGrams(48.1, N), sub: '1 sobre por litro · insumo Kuzz' });
+      }
       items.push({ id: 'bt', icon: 'wine', label: 'Botellas PET 1L', value: fmtCount(1, N, 'botella'), sub: 'con tapa precinto' });
       return items;
     },
     getSteps(N, kane) {
       return [
-        { n:1, phase:'mesa', title:'Lavar y pelar naranja', icon:'citrus', body:`Lava <b>${fmtCount(0.5,N,'naranja')}</b>. Pela solo la parte naranja (sin parte blanca).`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:fmtCount(0.5,N,'naranja') },
-        { n:2, phase:'mesa', title:'Lavar y laminar kión', icon:'circle-dot', body:`Lava el kión y corta <b>${3*N} láminas delgadas</b> (~${fmtGrams(8,N)}).`, tag:`${3*N} láminas` },
-        { n:3, phase:'mesa', title:'Poner agua a hervir con naranja y kión', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> a hervor con la cáscara de naranja y el kión. Tapado.`, tag:fmtWater(this.water,N) },
-        { n:4, phase:'mesa', title:'Medir la muña', icon:'leaf', body:`Mide <b>${fmtGrams(10,N)}</b> de muña seca (o ${fmtCount(3,N,'ramita')} frescas).`, tag:fmtGrams(10,N) },
-        { n:5, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(48,N)}</b> de Endulzante Kuzz.` : `Toma <b>${N} sobre${N>1?'s':''}</b> de Endulzante Kuzz (${Math.round(48*N)} g).`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
-        { n:6, phase:'post', title:'Colar la infusión', icon:'filter', body:'Cola hacia la jarra. Descarta la muña, cáscara de naranja y kión.', locked:true },
-        { n:7, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(48,N)}</b> en el líquido caliente. Enfría.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz. Enfría.`, tag: kane ? fmtGrams(48,N) : `${N} sobre${N>1?'s':''}`, locked:true },
-        { n:8, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella y refrigera.', tag:'sellado', locked:true },
-        { n:9, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código y guarda.', locked:true, isFinal:true }
+        { n:1, phase:'mesa', title:'Lavar y pelar naranja', icon:'citrus', body:`Lava <b>${fmtCount(0.5,N,'naranja')}</b>. Pela <b>solo la parte naranja</b> (cero parte blanca).`, hint:'El cronómetro arranca al pasar al Paso 2.', tag:fmtCount(0.5,N,'naranja'), kaneNote:'Los aceites esenciales (limoneno) están en la parte naranja de la cáscara. La parte blanca (albedo) contiene hesperidina amarga.' },
+        { n:2, phase:'mesa', title:'Lavar y laminar kión', icon:'circle-dot', body:`Lava el kión fresco y corta <b>${3*N} láminas de 2 mm</b> (~${(7.5*N).toFixed(1)} g).`, tag:`${3*N} láminas` },
+        { n:3, phase:'mesa', title:'Poner agua a hervir con naranja y kión', icon:'droplets', body:`Lleva <b>${fmtWater(this.water,N)}</b> a hervor con la piel de naranja y el kión. Tapado.`, tag:fmtWater(this.water,N), kaneNote:'El <b>gingerol</b> del kión es termoestable y se extrae a 100°C. Por eso se hierve desde el inicio. Las láminas de 2 mm aumentan el área de extracción.' },
+        { n:4, phase:'mesa', title:'Medir la muña seca', icon:'leaf', body:`Mide <b>${fmtGrams(6.25,N)}</b> de muña seca limpia (o ${10*N} g de muña fresca).`, tag:fmtGrams(6.25,N) },
+        { n:5, phase:'mesa', title:'Medir Endulzante Kuzz', icon:'flask-conical', body: kane ? `Mide <b>${fmtGrams(47.5,N)} de azúcar rubia + ${fmtGrams(0.6,N)} de sal fina</b>.` : `Toma <b>${N} sobre${N>1?'s':''} de Endulzante Kuzz</b> (${Math.round(48.1*N)} g).`, tag: kane ? fmtGrams(48.1,N) : `${N} sobre${N>1?'s':''}`, action: kane ? { type:'kosther' } : null },
+        { n:6, phase:'post', title:'Colar la infusión', icon:'filter', body:'Cola hacia la jarra. Descarta la muña, la cáscara de naranja y el kión.', locked:true },
+        { n:7, phase:'post', title:'Disolver el Endulzante Kuzz', icon:'coffee', body: kane ? `Disuelve <b>${fmtGrams(47.5,N)} de azúcar + ${fmtGrams(0.6,N)} de sal</b> en el líquido caliente. Enfría destapado.` : `Vierte ${N} sobre${N>1?'s':''} de Endulzante Kuzz en el líquido caliente. Enfría destapado.`, tag: kane ? fmtGrams(48.1,N) : `${N} sobre${N>1?'s':''}`, locked:true },
+        { n:8, phase:'post', title:'Envasar y refrigerar', icon:'package', body:'Envasa con embudo, sella con tapa precinto y refrigera de inmediato.', tag:'sellado y refrigerado', locked:true },
+        { n:9, phase:'post', title:'Ficha de lote', icon:'badge-check', body:'Genera el código de lote, revisa el resumen y guarda en el historial.', locked:true, isFinal:true }
       ];
     },
     hornilla: {
-      preAlert: 'Pon a hervir el agua con la cáscara de naranja y el kión. Cuando rompa el hervor, confirma para iniciar el timer.',
-      technique: '<b>Proceso:</b> Hervor con naranja+kión 4 min. Luego apagar, echar muña y infusionar 4 min tapado.',
-      confirmAdded: 'Ya el agua está hirviendo con la cáscara de naranja y el kión.',
+      preAlert: 'Pon a hervir el agua con la piel de naranja y el kión. Cuando rompa el hervor, confirma para iniciar el timer.',
+      technique: '<b>Proceso:</b> Hervor con naranja+kión 4 min. Luego apagar, echar muña y infusionar 4 min tapado (NO hervir la muña).',
+      confirmAdded: 'Ya el agua está hirviendo con la piel de naranja y el kión.',
       startBtnText: 'Iniciar hervor con naranja y kión · 4:00 min',
       phases: [
-        { duration: 240, label: 'Hervor con naranja y kión', fire: 'medio', desc: 'Tapado. Los aceites esenciales de la naranja y el kión se extraen a 100°C.', afterAlert: 'Apaga el fuego completamente. Echa la muña y tapa herméticamente.' },
-        { duration: 240, label: 'Infusión de muña', fire: 'apagado', desc: 'Fuego apagado. Tapar herméticamente. La muña libera su aroma andino con calor residual.' }
+        { duration: 240, label: 'Hervor con naranja y kión', fire: 'medio', desc: 'Tapado. Los aceites esenciales de la naranja (limoneno) y el gingerol del kión se extraen a 100°C.', afterAlert: 'Apaga el fuego completamente. Echa la muña seca y tapa herméticamente.' },
+        { duration: 240, label: 'Infusión de muña', fire: 'apagado', desc: 'Fuego apagado. Tapar herméticamente. La muña libera su aroma andino con calor residual. NO hervir.' }
       ],
       alarmTitle: '¡INFUSIÓN COMPLETADA!',
       alarmAction: 'Colar la infusión ahora',
@@ -702,11 +739,11 @@ const FLAVORS = {
     masterRecipe: {
       title: 'Muña Andina, Naranja & Kión', subtitle: 'Fórmula Matriz desde cero', icon: 'leaf', color: 'green',
       sections: [
-        { heading: 'Cantidades por litro', items: ['Muña seca: 10 g (2 cdas) o 3 ramitas frescas', 'Naranja dulce: 1/2 (solo piel, sin parte blanca)', 'Kión fresco: 3 láminas delgadas (~8 g)', 'Endulzante Kuzz: 48 g (47.4 g azúcar + 0.6 g sal)', 'Agua: 1,060 ml'] },
-        { heading: 'Proceso de 2 fases', body: 'Hervir agua+naranja+kión 4 min (tapado). Apagar fuego, echar muña, tapar hermético e infusionar 4 min. Colar. Disolver endulzante en caliente. Enfriar. Envasar.' },
-        { heading: 'Muña andina', body: 'La <b>muña</b> (Minthostachys mollis) contiene <b>pulegona</b> y <b>mentona</b>. Es más potente que la menta común. NO se hierve porque la pulegona se degrada. La infusión a fuego apagado preserva su aroma andino.' },
-        { heading: 'Kión (jengibre)', body: 'El <b>gingerol</b> del kión es termoestable y se extrae bien a 100°C. Por eso se hierve desde el inicio. Las láminas delgadas aumentan el área de extracción.' },
-        { heading: 'Cáscara de naranja', body: 'Los <b>aceites esenciales</b> (limoneno) están en la parte naranja de la cáscara. La parte blanca (albedo) contiene hesperidina amarga. Por eso se pela solo la parte naranja.' }
+        { heading: 'Cantidades por litro', items: ['Naranja dulce (piel): 0.5 (8.75 g, solo parte naranja)', 'Kión fresco: 3 láminas de 2 mm (7.5 g)', 'Muña seca limpia: 6.25 g (o 10 g fresca)', 'Endulzante Kuzz: 48.1 g (47.5 g azúcar + 0.6 g sal)', 'Agua: 1,060 ml'] },
+        { heading: 'Proceso de 2 fases', body: 'Hervir agua+naranja+kión 4 min (tapado, fuego medio). Apagar fuego, echar muña seca, tapar hermético e infusionar 4 min exactos (NO hervir). Colar fino. Disolver endulzante en caliente. Enfriar destapado. Envasar.' },
+        { heading: 'Muña andina (pulegona)', body: 'La <b>muña</b> (Minthostachys mollis) contiene <b>pulegona</b> y <b>mentona</b>. Es más potente que la menta común. NO se hierve porque la pulegona se degrada con calor sostenido. La infusión a fuego apagado preserva su aroma andino.' },
+        { heading: 'Kión (gingerol)', body: 'El <b>gingerol</b> del kión es termoestable y se extrae bien a 100°C. Por eso se hierve desde el inicio. Las láminas de 2 mm aumentan el área de extracción y liberan el aroma picante sin amargar.' },
+        { heading: 'Cáscara de naranja (limoneno)', body: 'Los <b>aceites esenciales</b> (limoneno) están en la parte naranja de la cáscara. La parte blanca (albedo) contiene hesperidina amarga. Por eso se pela solo la parte naranja, cero parte blanca.' }
       ]
     }
   }
@@ -724,14 +761,15 @@ const UTENSILS = [
 /* ---------- Estado ---------- */
 let state = {
   flavor: 1,
-  volume: 4,
+  volume: 6,
+  workerName: '',
   screen: 'checklist',
   currentStep: 1,
   mode: 'sucursal',
   shoppingMode: false,
   hornilla: { phase: 'idle', phaseIndex: 0, remaining: 0, herbAdded: false, herbRemoved: false, modalOpen: false, locked: false },
   heatingStart: null, heatingFrozen: null,
-  shoppingChecks: {}, shoppingPrices: {},
+  shoppingChecks: {}, shoppingPrices: {}, shoppingStock: {},
   history: [], theme: 'light',
 };
 let timers = { hornilla: null, heating: null };
@@ -761,11 +799,11 @@ function playAlarm(repeats = 6) {
 async function saveState() {
   try {
     await store.setItem('kuzz_state', {
-      flavor: state.flavor, volume: state.volume, screen: state.screen, currentStep: state.currentStep,
+      flavor: state.flavor, volume: state.volume, workerName: state.workerName, screen: state.screen, currentStep: state.currentStep,
       mode: state.mode, shoppingMode: state.shoppingMode,
       hornilla: { phase: state.hornilla.phase, phaseIndex: state.hornilla.phaseIndex, remaining: state.hornilla.remaining, herbAdded: state.hornilla.herbAdded, herbRemoved: state.hornilla.herbRemoved },
       heatingStart: state.heatingStart, heatingFrozen: state.heatingFrozen,
-      shoppingChecks: state.shoppingChecks, shoppingPrices: state.shoppingPrices, theme: state.theme
+      shoppingChecks: state.shoppingChecks, shoppingPrices: state.shoppingPrices, shoppingStock: state.shoppingStock, theme: state.theme
     });
     await store.setItem('kuzz_history', state.history);
   } catch (e) { console.warn('saveState', e); }
@@ -774,12 +812,12 @@ async function loadState() {
   try {
     const s = await store.getItem('kuzz_state');
     if (s) {
-      state.flavor = s.flavor || 1; state.volume = s.volume || 4; state.screen = s.screen || 'checklist';
+      state.flavor = s.flavor || 1; state.volume = s.volume || 6; state.workerName = s.workerName || ''; state.screen = s.screen || 'checklist';
       state.currentStep = s.currentStep || 1; state.mode = s.mode || 'sucursal';
       state.shoppingMode = s.shoppingMode || false;
       if (s.hornilla) Object.assign(state.hornilla, s.hornilla);
       state.heatingStart = s.heatingStart || null; state.heatingFrozen = s.heatingFrozen || null;
-      state.shoppingChecks = s.shoppingChecks || {}; state.shoppingPrices = s.shoppingPrices || {};
+      state.shoppingChecks = s.shoppingChecks || {}; state.shoppingPrices = s.shoppingPrices || {}; state.shoppingStock = s.shoppingStock || {};
       state.theme = s.theme || 'light';
     }
     const h = await store.getItem('kuzz_history'); if (Array.isArray(h)) state.history = h;
@@ -862,7 +900,7 @@ function renderFlavorSelector() {
 function renderVolumeSelector() {
   const c = $('volumeQuickButtons');
   c.innerHTML = '';
-  [1, 2, 4, 10].forEach(v => {
+  [1, 2, 4, 6].forEach(v => {
     const active = state.volume === v;
     const btn = document.createElement('button');
     btn.className = `px-4 py-2 rounded-xl font-extrabold text-sm transition border-2 ${active ? 'bg-kuzz-orange border-kuzz-orange text-white shadow-lg' : 'bg-white/10 border-white/30 text-white hover:bg-white/20'}`;
@@ -912,20 +950,39 @@ function renderShoppingItems(items) {
   c.innerHTML = items.map(item => {
     const key = `f${state.flavor}_v${state.volume}_${item.id}`;
     const checked = state.shoppingChecks[key] || false;
+    const inStock = state.shoppingStock[key] || false;
     const price = state.shoppingPrices[key] || '';
+    const dimClass = inStock ? 'opacity-50' : '';
+    const priceDisabled = inStock ? 'disabled value="0.00"' : `value="${price}"`;
     return `
-      <div class="flex items-start gap-2 p-3 rounded-xl border ${checked ? 'border-kuzz-green bg-kuzz-green/5' : 'border-kuzz-border dark:border-kuzz-border-dark bg-kuzz-card dark:bg-kuzz-black/30'} transition">
+      <div class="flex items-start gap-2 p-3 rounded-xl border ${inStock ? 'border-kuzz-orange bg-kuzz-orange/5' : checked ? 'border-kuzz-green bg-kuzz-green/5' : 'border-kuzz-border dark:border-kuzz-border-dark bg-kuzz-card dark:bg-kuzz-black/30'} transition ${dimClass}">
         <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0">
           <input type="checkbox" data-sk="${key}" ${checked ? 'checked' : ''} class="mt-1 w-5 h-5 accent-kuzz-green shrink-0">
           <div class="flex items-start gap-2 min-w-0 flex-1">
             <i data-lucide="${item.icon}" class="w-4 h-4 text-kuzz-green dark:text-kuzz-orange-light mt-0.5 shrink-0"></i>
-            <div class="min-w-0"><div class="text-sm font-semibold ${checked ? 'line-through opacity-60' : ''}">${item.label}</div><div class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60">${item.value} · ${item.sub}</div></div>
+            <div class="min-w-0">
+              <div class="text-sm font-semibold ${checked ? 'line-through opacity-60' : ''}">${item.label}</div>
+              <div class="text-xs text-kuzz-black/60 dark:text-kuzz-cream/60">${item.value} · ${item.sub}</div>
+              ${inStock ? '<span class="inline-flex items-center gap-1 mt-1 text-[10px] font-bold uppercase bg-kuzz-orange/15 text-kuzz-orange px-2 py-0.5 rounded-full"><i data-lucide="package-check" class="w-3 h-3"></i>En stock</span>' : ''}
+            </div>
           </div>
         </label>
-        <div class="flex items-center gap-1 shrink-0 mt-0.5"><span class="text-xs font-bold text-kuzz-black/50">S/</span><input type="number" data-pk="${key}" value="${price}" step="0.10" min="0" placeholder="0.00" class="w-20 text-right text-sm font-semibold bg-kuzz-cream dark:bg-kuzz-black/40 border border-kuzz-border dark:border-kuzz-border-dark rounded-lg px-2 py-1 focus:outline-none focus:border-kuzz-green transition"></div>
+        <div class="flex flex-col items-end gap-1 shrink-0 mt-0.5">
+          <label class="flex items-center gap-1 cursor-pointer">
+            <input type="checkbox" data-stock-key="${key}" ${inStock ? 'checked' : ''} class="w-4 h-4 accent-kuzz-orange">
+            <span class="text-[10px] font-bold uppercase text-kuzz-orange">Ya hay</span>
+          </label>
+          <div class="flex items-center gap-1"><span class="text-xs font-bold text-kuzz-black/50">S/</span><input type="number" data-pk="${key}" ${priceDisabled} step="0.10" min="0" placeholder="0.00" class="w-20 text-right text-sm font-semibold bg-kuzz-cream dark:bg-kuzz-black/40 border border-kuzz-border dark:border-kuzz-border-dark rounded-lg px-2 py-1 focus:outline-none focus:border-kuzz-green disabled:opacity-40 transition"></div>
+        </div>
       </div>`;
   }).join('');
-  c.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.onchange = e => { state.shoppingChecks[e.target.dataset.sk] = e.target.checked; saveState(); renderShoppingItems(items); });
+  c.querySelectorAll('input[data-sk]').forEach(cb => cb.onchange = e => { state.shoppingChecks[e.target.dataset.sk] = e.target.checked; saveState(); renderShoppingItems(items); });
+  c.querySelectorAll('input[data-stock-key]').forEach(cb => cb.onchange = e => {
+    const k = e.target.dataset.stockKey;
+    state.shoppingStock[k] = e.target.checked;
+    if (e.target.checked) { state.shoppingPrices[k] = 0; delete state.shoppingChecks[k]; }
+    saveState(); renderShoppingItems(items); renderRoiPanel(items, state.volume);
+  });
   c.querySelectorAll('input[type="number"]').forEach(inp => inp.oninput = e => { const k = e.target.dataset.pk; const v = e.target.value; if (v === '') delete state.shoppingPrices[k]; else state.shoppingPrices[k] = parseFloat(v) || 0; saveState(); renderRoiPanel(items, state.volume); });
   refreshIcons();
 }
@@ -955,15 +1012,32 @@ function renderRoiPanel(items, N) {
   refreshIcons();
 }
 
-async function copyShoppingList() {
+function buildShoppingText() {
   const f = currentFlavor();
   const items = f.getIngredients(state.volume, state.mode === 'kane');
-  const totalCost = items.reduce((s, i) => { const k = `f${state.flavor}_v${state.volume}_${i.id}`; return s + (state.shoppingPrices[k] || 0); }, 0);
-  const lines = [`*Lista de Compras kuzz*`, `*${f.name} — ${state.volume}L (${state.volume} botellas)*`, ``];
-  items.forEach(it => { const k = `f${state.flavor}_v${state.volume}_${it.id}`; const m = state.shoppingChecks[k] ? '[x]' : '[ ]'; const p = state.shoppingPrices[k]; const ps = p ? ` — S/ ${p.toFixed(2)}` : ''; lines.push(`${m} ${it.label} (${it.value} · ${it.sub})${ps}`); });
-  if (totalCost > 0) { const cp = totalCost / state.volume; lines.push(``, `*Costo Total:* S/ ${totalCost.toFixed(2)}`, `*Costo/botella:* S/ ${cp.toFixed(2)}`, `*Venta Directa:* S/ ${(4.5*state.volume).toFixed(2)} · ROI ${(((4.5*state.volume-totalCost)/totalCost)*100).toFixed(1)}%`, `*Venta Bodegas:* S/ ${(3.8*state.volume).toFixed(2)} · ROI ${(((3.8*state.volume-totalCost)/totalCost)*100).toFixed(1)}%`); }
+  const N = state.volume;
+  const worker = state.workerName || 'Sin nombre';
+  const toBuy = [], inStock = [];
+  items.forEach(it => {
+    const k = `f${state.flavor}_v${N}_${it.id}`;
+    if (state.shoppingStock[k]) { inStock.push(it); }
+    else { const m = state.shoppingChecks[k] ? '[x]' : '[ ]'; const p = state.shoppingPrices[k]; const ps = p ? ` — S/ ${p.toFixed(2)}` : ''; toBuy.push(`${m} ${it.label} (${it.value} · ${it.sub})${ps}`); }
+  });
+  const totalCost = items.reduce((s, i) => { const k = `f${state.flavor}_v${N}_${i.id}`; return s + (state.shoppingStock[k] ? 0 : (state.shoppingPrices[k] || 0)); }, 0);
+  const lines = [`*Lista de Compras kuzz*`, `*${f.name}*`, `*${N}L (${N} botellas)*`, `Operador: ${worker}`, ``];
+  if (toBuy.length) { lines.push(`*Por comprar:*`); toBuy.forEach(l => lines.push(l)); }
+  if (inStock.length) { lines.push(``, `*Ya hay en stock:*`); inStock.forEach(it => lines.push(`[x] ${it.label} (${it.value})`)); }
+  if (totalCost > 0) { const cp = totalCost / N; lines.push(``, `*Costo Total:* S/ ${totalCost.toFixed(2)}`, `*Costo/botella:* S/ ${cp.toFixed(2)}`, `*Venta Directa:* S/ ${(4.5*N).toFixed(2)} · ROI ${(((4.5*N-totalCost)/totalCost)*100).toFixed(1)}%`, `*Venta Bodegas:* S/ ${(3.8*N).toFixed(2)} · ROI ${(((3.8*N-totalCost)/totalCost)*100).toFixed(1)}%`); }
   lines.push(``, `Generado por kuzz`);
-  try { await navigator.clipboard.writeText(lines.join('\n')); toast('Lista copiada'); } catch(e) { window.open(`https://wa.me/?text=${encodeURIComponent(lines.join('\n'))}`, '_blank'); }
+  return lines.join('\n');
+}
+
+async function copyShoppingList() {
+  try { await navigator.clipboard.writeText(buildShoppingText()); toast('Texto copiado'); } catch(e) { toast('No se pudo copiar'); }
+}
+function sendToWhatsApp() {
+  window.open(`https://wa.me/?text=${encodeURIComponent(buildShoppingText())}`, '_blank');
+  toast('Abriendo WhatsApp...');
 }
 
 function clearShoppingChecks() {
@@ -1233,6 +1307,78 @@ function openSucursalRecipeBook() {
   openModal('sucursalRecipeModal');
 }
 
+/* ---------- Dashboard ---------- */
+function openDashboard() {
+  const h = state.history;
+  const c = $('dashboardContent');
+  if (!h.length) { c.innerHTML = `<div class="text-center py-8 text-kuzz-black/50 dark:text-kuzz-cream/50 italic">Sin datos aún. Completa un lote para ver el dashboard.</div>`; openModal('dashboardModal'); return; }
+
+  // KPIs
+  const totalLiters = h.reduce((s, l) => s + l.volume, 0);
+  const totalBottles = h.reduce((s, l) => s + (l.bottles || l.volume), 0);
+  const totalBatches = h.length;
+  const uniqueDays = new Set(h.map(l => new Date(l.date).toDateString())).size;
+
+  // By flavor
+  const byFlavor = {};
+  h.forEach(l => { const n = l.flavorName || 'Sin sabor'; if (!byFlavor[n]) byFlavor[n] = { liters: 0, batches: 0 }; byFlavor[n].liters += l.volume; byFlavor[n].batches++; });
+
+  // By worker
+  const byWorker = {};
+  h.forEach(l => { const w = l.workerName || 'Sin nombre'; if (!byWorker[w]) byWorker[w] = { liters: 0, batches: 0, days: new Set() }; byWorker[w].liters += l.volume; byWorker[w].batches++; byWorker[w].days.add(new Date(l.date).toDateString()); });
+
+  // By day
+  const byDay = {};
+  h.forEach(l => { const d = new Date(l.date).toLocaleDateString('es-PE'); if (!byDay[d]) byDay[d] = { liters: 0, flavors: [], workers: [] }; byDay[d].liters += l.volume; if (!byDay[d].flavors.includes(l.flavorName)) byDay[d].flavors.push(l.flavorName); if (l.workerName && !byDay[d].workers.includes(l.workerName)) byDay[d].workers.push(l.workerName); });
+
+  const maxFlavorLiters = Math.max(...Object.values(byFlavor).map(f => f.liters), 1);
+
+  let html = `
+    <div class="grid grid-cols-3 gap-2 mb-4">
+      <div class="bg-kuzz-green text-white rounded-xl p-3 text-center"><div class="text-[10px] uppercase opacity-70">Días trabajados</div><div class="text-xl font-black">${uniqueDays}</div></div>
+      <div class="bg-kuzz-orange text-white rounded-xl p-3 text-center"><div class="text-[10px] uppercase opacity-70">Litros totales</div><div class="text-xl font-black">${totalLiters}</div></div>
+      <div class="bg-kuzz-card dark:bg-kuzz-card-dark border-2 border-kuzz-green rounded-xl p-3 text-center"><div class="text-[10px] uppercase opacity-50">Tandas</div><div class="text-xl font-black text-kuzz-green dark:text-kuzz-orange-light">${totalBatches}</div></div>
+    </div>
+    <div class="bg-kuzz-cream dark:bg-kuzz-black/40 rounded-xl p-3 text-center mb-4 border border-kuzz-border dark:border-kuzz-border-dark">
+      <div class="text-[10px] uppercase opacity-50">Botellas de 1L producidas</div><div class="text-lg font-black">${totalBottles}</div>
+    </div>
+
+    <div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-2">Desglose por sabor</div>
+    <div class="space-y-2 mb-4">
+      ${Object.entries(byFlavor).map(([name, d]) => `
+        <div class="bg-kuzz-card dark:bg-kuzz-black/30 rounded-xl p-3 border border-kuzz-border dark:border-kuzz-border-dark">
+          <div class="flex justify-between items-center mb-1"><span class="text-sm font-bold">${name}</span><span class="text-xs font-bold text-kuzz-green dark:text-kuzz-orange-light">${d.liters}L · ${d.batches} tanda${d.batches>1?'s':''}</span></div>
+          <div class="h-2 bg-kuzz-border dark:bg-kuzz-border-dark rounded-full overflow-hidden"><div class="h-full bg-kuzz-orange transition-all" style="width:${(d.liters/maxFlavorLiters)*100}%"></div></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-2">Desglose por trabajador</div>
+    <div class="space-y-2 mb-4">
+      ${Object.entries(byWorker).map(([name, d]) => `
+        <div class="bg-kuzz-card dark:bg-kuzz-black/30 rounded-xl p-3 border border-kuzz-border dark:border-kuzz-border-dark flex justify-between items-center">
+          <div><div class="text-sm font-bold">${name}</div><div class="text-xs opacity-60">${d.days.size} día${d.days.size>1?'s':''} · ${d.batches} tanda${d.batches>1?'s':''}</div></div>
+          <div class="text-right"><div class="text-lg font-black text-kuzz-green dark:text-kuzz-orange-light">${d.liters}L</div></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-2">Registro por dia</div>
+    <div class="space-y-2">
+      ${Object.entries(byDay).sort((a,b) => {
+        const da = new Date(a[0].split('/').reverse().join('-'));
+        const db = new Date(b[0].split('/').reverse().join('-'));
+        return db - da;
+      }).map(([date, d]) => `
+        <div class="bg-kuzz-card dark:bg-kuzz-black/30 rounded-xl p-3 border border-kuzz-border dark:border-kuzz-border-dark">
+          <div class="flex justify-between items-center mb-1"><span class="text-sm font-bold">${date}</span><span class="text-xs font-bold text-kuzz-green dark:text-kuzz-orange-light">${d.liters}L</span></div>
+          <div class="text-xs opacity-60">Sabores: ${d.flavors.join(', ')}</div>
+          <div class="text-xs opacity-60">Operadores: ${d.workers.join(', ') || 'Sin nombre'}</div>
+        </div>`).join('')}
+    </div>
+  `;
+  c.innerHTML = html;
+  openModal('dashboardModal');
+}
+
 /* ---------- Lote ---------- */
 function generateLoteCode() {
   const d = new Date(); const pad = n => n.toString().padStart(2, '0');
@@ -1245,16 +1391,16 @@ function finishLote() {
   if (timers.heating) { clearInterval(timers.heating); timers.heating = null; }
   state.heatingFrozen = elapsed;
   $('heatingPill').classList.remove('active'); $('heatingPillMobile').classList.remove('active');
-  const lote = { code, flavor: state.flavor, flavorName: f.shortName, volume: state.volume, bottles: state.volume, date: new Date().toISOString(), totalSeconds: elapsed };
+  const lote = { code, flavor: state.flavor, flavorName: f.shortName, volume: state.volume, bottles: state.volume, workerName: state.workerName || 'Sin nombre', date: new Date().toISOString(), totalSeconds: elapsed };
   state.history.unshift(lote); if (state.history.length > 50) state.history = state.history.slice(0, 50);
   $('loteHeroDesc').textContent = `${f.name} está envasada y lista para refrigeración.`;
-  $('loteCard').innerHTML = `<div class="text-center"><div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-1">Código</div><div class="text-2xl font-black timer-digit text-kuzz-green dark:text-kuzz-orange-light">${code}</div></div><div class="grid grid-cols-2 gap-3"><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Litros</div><div class="text-xl font-extrabold">${state.volume} L</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Botellas</div><div class="text-xl font-extrabold">${state.volume}</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Tiempo</div><div class="text-xl font-extrabold timer-digit">${fmtTime(elapsed)}</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Sabor</div><div class="text-sm font-bold">${f.shortName}</div></div></div><div class="bg-kuzz-green/5 dark:bg-kuzz-orange/10 border-l-4 border-kuzz-green p-3 rounded-r-lg text-sm">Refrigerar de inmediato. Consumir en 72 horas.</div>`;
+  $('loteCard').innerHTML = `<div class="text-center"><div class="text-xs font-bold uppercase tracking-widest text-kuzz-orange mb-1">Código</div><div class="text-2xl font-black timer-digit text-kuzz-green dark:text-kuzz-orange-light">${code}</div></div><div class="grid grid-cols-2 gap-3"><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Litros</div><div class="text-xl font-extrabold">${state.volume} L</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Botellas</div><div class="text-xl font-extrabold">${state.volume}</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Tiempo</div><div class="text-xl font-extrabold timer-digit">${fmtTime(elapsed)}</div></div><div class="bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 text-center"><div class="text-[11px] uppercase opacity-50">Operador</div><div class="text-sm font-bold">${state.workerName || 'Sin nombre'}</div></div></div><div class="bg-kuzz-green/5 dark:bg-kuzz-orange/10 border-l-4 border-kuzz-green p-3 rounded-r-lg text-sm">Sabor: ${f.shortName}. Refrigerar de inmediato. Consumir en 72 horas.</div>`;
   showScreen('lote'); saveState(); refreshIcons();
 }
 function renderHistory() {
   const c = $('historyList');
   if (!state.history.length) { c.innerHTML = `<div class="text-sm italic opacity-50 py-3">Sin lotes.</div>`; return; }
-  c.innerHTML = state.history.map(h => `<div class="flex justify-between bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 border border-kuzz-border dark:border-kuzz-border-dark"><div><div class="font-extrabold text-sm text-kuzz-green dark:text-kuzz-orange-light">${h.code}</div><div class="text-xs opacity-60">${h.flavorName} · ${h.volume}L · ${new Date(h.date).toLocaleDateString('es-PE')}</div></div><div class="text-xs font-bold timer-digit">${fmtTime(h.totalSeconds)}</div></div>`).join('');
+  c.innerHTML = state.history.map(h => `<div class="flex justify-between bg-kuzz-cream dark:bg-kuzz-black/30 rounded-xl p-3 border border-kuzz-border dark:border-kuzz-border-dark"><div><div class="font-extrabold text-sm text-kuzz-green dark:text-kuzz-orange-light">${h.code}</div><div class="text-xs opacity-60">${h.flavorName} · ${h.volume}L · ${h.workerName || 'Sin nombre'} · ${new Date(h.date).toLocaleDateString('es-PE')}</div></div><div class="text-xs font-bold timer-digit">${fmtTime(h.totalSeconds)}</div></div>`).join('');
   refreshIcons();
 }
 
@@ -1296,8 +1442,11 @@ function bindEvents() {
   $('kaneToggleBtn').onclick = toggleKaneMode;
   $('installBtn').onclick = installApp;
   $('recipeBookBtn').onclick = openSucursalRecipeBook;
+  $('dashboardBtn').onclick = openDashboard;
   $('kanePasswordConfirmBtn').onclick = confirmKanePassword;
   $('kanePasswordInput').addEventListener('keydown', e => { if (e.key === 'Enter') confirmKanePassword(); });
+  $('kanePasswordInput').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); if (e.target.value.length === 4) confirmKanePassword(); });
+  $('workerNameInput').addEventListener('input', e => { state.workerName = e.target.value; saveState(); });
   $('hornillaFloatingBtn').onclick = openHornilla;
   $('hornillaCloseBtn').onclick = closeHornilla;
   $('startBtn').onclick = () => { showScreen('steps'); state.currentStep = 1; renderCurrentStep(); saveState(); toast('Producción iniciada'); };
@@ -1306,6 +1455,7 @@ function bindEvents() {
   $('resetFlowBtn').onclick = resetFlow;
   $('newBatchBtn').onclick = newBatch;
   $('viewHistoryBtn').onclick = () => { $('historyPanel').classList.toggle('hidden'); renderHistory(); };
+  $('sendWhatsAppBtn').onclick = sendToWhatsApp;
   $('copyListBtn').onclick = copyShoppingList;
   $('clearShoppingBtn').onclick = clearShoppingChecks;
   $('shoppingModeToggle').onclick = () => { state.shoppingMode = !state.shoppingMode; $('shoppingModeToggle').classList.toggle('on', state.shoppingMode); renderFormulaBlock(); saveState(); };
@@ -1335,6 +1485,7 @@ async function init() {
   requestWakeLock();
   if (state.mode === 'kane') { $('kaneBadge').classList.remove('hidden'); $('kaneBadge').classList.add('flex'); $('kaneToggleBtn').classList.add('bg-kuzz-orange'); $('kaneToggleBtn').classList.remove('bg-white/15'); }
   if (state.shoppingMode) $('shoppingModeToggle').classList.add('on');
+  $('workerNameInput').value = state.workerName;
   renderFlavorSelector(); renderVolumeSelector(); renderFormulaBlock(); renderUtensils();
   if (state.screen === 'steps' && (state.heatingStart || state.heatingFrozen !== null)) startHeatingChronometer();
   // Restore hornilla timer
